@@ -1,0 +1,37 @@
+{
+  "name": "@seirdotexe/actionmessageformat",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Adobe's binary format, Action Message Format (AMF, v0 and v3), faithfully rewritten in modern JavaScript.",
+  "type": "module",
+  "main": "./index.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "engines": {
+    "node": "^20"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "homepage": "https://github.com/seirdotexe/ActionMessageFormat",
+  "repository": "github:seirdotexe/ActionMessageFormat",
+  "bugs": {
+    "url": "https://github.com/seirdotexe/ActionMessageFormat/issues"
+  },
+  "keywords": [
+    "bytes",
+    "bytearray",
+    "buffer",
+    "nodejs",
+    "binary",
+    "amf",
+    "amf0",
+    "amf3",
+    "action message format",
+    "adobe",
+    "serialize",
+    "deserialize"
+  ],
+  "author": "seirdotexe",
+  "license": "BSD-3-Clause"
+}
