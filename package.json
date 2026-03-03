@@ -9,10 +9,11 @@
     "test": "node --test"
   },
   "engines": {
-    "node": "^20"
+    "node": "^24"
   },
-  "dependencies": {},
-  "devDependencies": {},
+  "dependencies": {
+    "@seirdotexe/dynbuffer": "^1.0.1"
+  },
   "homepage": "https://github.com/seirdotexe/ActionMessageFormat",
   "repository": "github:seirdotexe/ActionMessageFormat",
   "bugs": {
