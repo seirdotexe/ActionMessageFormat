@@ -26,7 +26,6 @@ export default class ClassAlias {
     this.#aliases = new Map();
   }
 
-
   /**
    * Looks up a class that previously had an alias registered to it
    * @param {string} aliasName - The alias belonging to the class to retrieve
