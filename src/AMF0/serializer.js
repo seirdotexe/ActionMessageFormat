@@ -1,6 +1,7 @@
 import DynBuffer from '@seirdotexe/dynbuffer';
 import { isBoxedPrimitive } from 'node:util/types';
 import Markers from '../AMF/markers.js';
+import Reference from './reference.js';
 
 /**
  * @typedef {import('../AMF/alias.js').default} ClassAlias
@@ -25,6 +26,12 @@ export default class Serializer {
    * @type {ClassAlias}
    */
   #classAlias;
+  /**
+   * Initialize the AMF0 reference holder
+   * @private
+   * @type {Reference}
+   */
+  #reference;
 
   /**
    * Creates a new AMF0 serializer
@@ -33,6 +40,7 @@ export default class Serializer {
   constructor(classAlias) {
     this.#dynbuf = new DynBuffer();
     this.#classAlias = classAlias;
+    this.#reference = new Reference();
   }
 
   /**
