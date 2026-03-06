@@ -6,13 +6,13 @@
  */
 export default class ClassAlias {
   /**
-   * Initialize a new WeakMap to store class->alias
+   * Initialize a new WeakMap to store class->alias (aliases by their class)
    * @private
    * @type {WeakMap<object, string>}
    */
   #classes;
   /**
-   * Initialize a new Map to store alias->class
+   * Initialize a new Map to store alias->class (classes by their alias)
    * @private
    * @type {Map<string, object>}
    */
@@ -27,7 +27,7 @@ export default class ClassAlias {
   }
 
   /**
-   * Looks up a class that previously had an alias registered to it
+   * Looks up a class by its alias
    * @param {string} aliasName - The alias belonging to the class to retrieve
    * @returns {object} The class belonging to the specified alias
    */
@@ -36,7 +36,7 @@ export default class ClassAlias {
   }
 
   /**
-   * Looks up an alias that previously had a class registered to it
+   * Looks up an alias by its class
    * @param {object} classObj - The class belonging to the alias to retrieve
    * @returns {string} The alias belonging to the specified class
    */
@@ -45,23 +45,12 @@ export default class ClassAlias {
   }
 
   /**
-   * Register a class of an object when the object is encoded in AMF
+   * Register the class of an object
    * @param {string} aliasName - The alias to register the class under
    * @param {object} classObj - The class to preserve and to associate with the alias
    */
   registerClassAlias(aliasName, classObj) {
     this.#classes.set(classObj, aliasName);
     this.#aliases.set(aliasName, classObj);
-  }
-
-  /**
-   * Unregisters a class completely so that its alias is no longer associated
-   * @param {string} aliasName - The alias to unregister and clear all associations to any class
-   */
-  deregisterClassAlias(aliasName) {
-    const classObj = this.getClassByAlias(aliasName);
-
-    this.#classes.delete(classObj);
-    this.#aliases.delete(aliasName);
   }
 }

@@ -26,7 +26,7 @@ export class AMF {
   };
 
   /**
-   * Serialize an object into AMF binary data
+   * Serializes an object into AMF binary data
    * @static
    * @param {any} value - Any supported value to serialize
    * @param {0|3} [version=3] - The AMF version

@@ -14,13 +14,13 @@ import Markers from '../AMF/markers.js';
  */
 export default class Serializer {
   /**
-   * The DynBuffer instance containing written AMF bytes from this instance
+   * The DynBuffer instance containing AMF0 bytes for this instance
    * @private
    * @type {DynBuffer}
    */
   #dynbuf;
   /**
-   * The general class alias holder
+   * The AMF class alias holder
    * @private
    * @type {ClassAlias}
    */
@@ -28,7 +28,7 @@ export default class Serializer {
 
   /**
    * Creates a new AMF0 serializer
-   * @param {ClassAlias} classAlias - The class alias internally coming from AMF entrypoint class
+   * @param {ClassAlias} classAlias - The class alias internally coming from the AMF entrypoint class
    */
   constructor(classAlias) {
     this.#dynbuf = new DynBuffer();
@@ -36,10 +36,12 @@ export default class Serializer {
   }
 
   /**
-   * Flushes the DynBuffer instance by saving the current stream, clearing it, and returning the stream containing AMF bytes
+   * Flushes the DynBuffer instance by caching the current stream, clearing the holding stream, and returning the cached stream containing the AMF bytes
    * @returns {Buffer} The buffer containing AMF bytes
    */
   flush() {
+    // Todo - Do we need to reset the references?
+
     const { stream } = this.#dynbuf;
 
     this.#dynbuf.clear();
@@ -48,7 +50,7 @@ export default class Serializer {
   }
 
   /**
-   * Serializes a value in AMF0 format
+   * Serializes an object into AMF0 binary data
    * @param {any} value - The value to serialize
    * @returns {Serializer}
    */

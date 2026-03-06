@@ -1,5 +1,7 @@
 /**
- * @typedef {Object} AMF0Markers
+ * @module AMF
+ *
+ * @typedef {object} AMF0Markers
  * @property {number} NUMBER
  * @property {number} BOOLEAN
  * @property {number} STRING
@@ -19,7 +21,7 @@
  * @property {number} TYPED_OBJECT
  * @property {number} AVMPLUS
  *
- * @typedef {Object} AMF3Markers
+ * @typedef {object} AMF3Markers
  * @property {number} UNDEFINED
  * @property {number} NULL
  * @property {number} FALSE
@@ -39,9 +41,9 @@
  * @property {number} VECTOR_OBJECT
  * @property {number} DICTIONARY
  *
- * @typedef {Object} AMFMarkers
- * @property {Readonly<AMF0Markers>} AMF0 - AMF0 type markers
- * @property {Readonly<AMF3Markers>} AMF3 - AMF3 type markers
+ * @typedef {object} AMFMarkers
+ * @property {Readonly<AMF0Markers>} AMF0
+ * @property {Readonly<AMF3Markers>} AMF3
  */
 
 /** @type {Readonly<AMFMarkers>} */
