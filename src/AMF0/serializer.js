@@ -127,14 +127,41 @@ export default class Serializer {
    * @private
    * @param {string} value - The string to serialize
    */
-  #serializeString(value) { }
+  #serializeString(value) {
+    const length = Buffer.byteLength(value);
+
+    if (length > 65535) {
+      this.#dynbuf.writeByte(Markers.AMF0.LONG_STRING);
+      this.#dynbuf.writeUnsignedInt(length);
+      this.#dynbuf.writeUTFBytes(value);
+    } else {
+      this.#dynbuf.writeByte(Markers.AMF0.STRING);
+      this.#dynbuf.writeUTF(value);
+    }
+  }
 
   /**
    * Serializes an object
    * @private
    * @param {object} value - The object to serialize
    */
-  #serializeObject(value) { }
+  #serializeObject(value) {
+    const cache = this.#reference.has(value);
+
+    if (cache.referenced) {
+      return this.#serializeReference(cache.index);
+    }
+
+    this.#dynbuf.writeByte(Markers.AMF0.OBJECT);
+
+    for (const key in value) {
+      this.#dynbuf.writeUTF(key);
+      this.serialize(value[key]);
+    }
+
+    this.#dynbuf.writeShort(0);
+    this.#dynbuf.writeByte(Markers.AMF0.OBJECT_END);
+  }
 
   /**
    * Serializes an array
@@ -148,7 +175,17 @@ export default class Serializer {
    * @private
    * @param {Date} value - The date to serialize
    */
-  #serializeDate(value) { }
+  #serializeDate(value) {
+    const cache = this.#reference.has(value);
+
+    if (cache.referenced) {
+      return this.#serializeReference(cache.index);
+    }
+
+    this.#dynbuf.writeByte(Markers.AMF0.DATE);
+    this.#dynbuf.writeDouble(value.getTime());
+    this.#dynbuf.writeShort(value.getTimezoneOffset()); // The spec says '0x0000' is written but this is not true
+  }
 
   /**
    * Serializes an unidentified object
@@ -170,7 +207,10 @@ export default class Serializer {
    * @private
    * @param {number} index - The index of the referenced value to serialize
    */
-  #serializeReference(index) { }
+  #serializeReference(index) {
+    this.#dynbuf.writeByte(Markers.AMF0.REFERENCE);
+    this.#dynbuf.writeShort(index);
+  }
 
   /**
    * Serializes an unsupported value
