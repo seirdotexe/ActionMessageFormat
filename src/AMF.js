@@ -27,7 +27,7 @@ export class AMF {
 
   /**
    * Registers a Dynamic Property Writer to dynamically modify an object before it's serialized
-   * @paran {Function} method - The Dynamic Property Writer method
+   * @param {Function} method - The Dynamic Property Writer method
    * @param {0|3} [version=3] - The AMF version
    * @throws {ReferenceError} There must be 1 argument in the given method
    */
