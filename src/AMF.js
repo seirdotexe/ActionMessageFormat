@@ -26,6 +26,20 @@ export class AMF {
   };
 
   /**
+   * Registers a Dynamic Property Writer to dynamically modify an object before it's serialized
+   * @property {Function} method - The Dynamic Property Writer method
+   * @param {0|3} [version=3] - The AMF version
+   * @throws {ReferenceError} There must be 1 argument in the given method
+   */
+  static registerDynamicPropertyWriter(method, version = 3) {
+    if (method.length !== 1) {
+      throw new ReferenceError('A Dynamic Property Writer can only take 1 argument, used to pass objects for modification.');
+    }
+
+    this.#serializers[version].dynamicPropertyWriter = method;
+  }
+
+  /**
    * Serializes an object into AMF binary data
    * @static
    * @param {any} value - Any supported value to serialize

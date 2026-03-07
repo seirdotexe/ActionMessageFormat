@@ -28,6 +28,12 @@ export default class Serializer {
    * @type {Reference}
    */
   #reference;
+  /**
+   * Initialize the Dynamic Property Writer function
+   * @private
+   * @type {Function}
+   */
+  #dynamicPropertyWriter;
 
   /**
    * Creates a new AMF0 serializer
@@ -37,6 +43,14 @@ export default class Serializer {
     this.#dynbuf = new DynBuffer();
     this.#classAlias = classAlias;
     this.#reference = new Reference();
+  }
+
+  /**
+   * Cache the method of a Dynamic Property Writer to the AMF0 serializer class
+   * @param {Function} method - The Dynamic Property Writer method
+   */
+  set dynamicPropertyWriter(method) {
+    this.#dynamicPropertyWriter = method;
   }
 
   /**
@@ -147,6 +161,10 @@ export default class Serializer {
 
     if (cache.referenced) {
       return this.#serializeReference(cache.index);
+    }
+
+    if (this.#dynamicPropertyWriter) {
+      this.#dynamicPropertyWriter(value);
     }
 
     this.#dynbuf.writeByte(Markers.AMF0.OBJECT);
