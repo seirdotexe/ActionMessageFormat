@@ -1,7 +1,7 @@
 import DynBuffer from '@seirdotexe/dynbuffer';
 import { isBoxedPrimitive } from 'node:util/types';
 import Markers from '../AMF/markers.js';
-import { isNativeObject } from '../AMF/utils.js';
+import { determineArray, isNativeObject } from '../AMF/utils.js';
 import Reference from './reference.js';
 
 /**
@@ -165,7 +165,23 @@ export default class Serializer {
    * @private
    * @param {any[]} value - The array to serialize
    */
-  #serializeArray(value) { }
+  #serializeArray(value) {
+    const cache = this.#reference.has(value);
+
+    if (cache.referenced) {
+      return this.#serializeReference(cache.index);
+    }
+
+    this.#dynbuf.writeByte(Markers.AMF0.ECMA_ARRAY);
+    this.#dynbuf.writeUnsignedInt(value.length); // An associative array will always write 0 here. This seems to be done on purpose by AVM, to treat it as an 'object' perhaps?
+
+    const arrInfo = determineArray(value);
+
+    // Todo
+
+    this.#dynbuf.writeShort(0);
+    this.#dynbuf.writeByte(Markers.AMF0.OBJECT_END);
+  }
 
   /**
    * Serializes a date
