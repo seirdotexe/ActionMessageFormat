@@ -1,6 +1,7 @@
 import DynBuffer from '@seirdotexe/dynbuffer';
 import { isBoxedPrimitive } from 'node:util/types';
 import Markers from '../AMF/markers.js';
+import { isNativeObject } from '../AMF/utils.js';
 import Reference from './reference.js';
 
 /**
@@ -68,6 +69,7 @@ export default class Serializer {
       const type = value?.constructor?.name;
 
       switch (type) {
+        case 'Function': this.#serializeUndefined(); break;
         case 'Number': this.#serializeNumber(value); break;
         case 'Boolean': this.#serializeBoolean(value); break;
         case 'String': this.#serializeString(value); break;
@@ -187,7 +189,18 @@ export default class Serializer {
    * @private
    * @param {any} value - The unidentified object to serialize
    */
-  #serializeUnidentifiedObject(value) { }
+  #serializeUnidentifiedObject(value) {
+    const { constructor } = Object.getPrototypeOf(value);
+    const aliasName = this.#classAlias.getAliasByClass(constructor);
+
+    if (aliasName) { // This is a registered typed object, so we serialize it as one
+      this.#serializeTypedObject(value, aliasName);
+    } else if (!isNativeObject(constructor)) { // This is an unregistered typed object, so we serialize it as an object
+      this.#serializeObject(value);
+    } else { // An unknown type was found, we do the right thing and write the unsupported marker
+      this.#serializeUnsupported();
+    }
+  }
 
   /**
    * Serializes a typed object
@@ -195,7 +208,24 @@ export default class Serializer {
    * @param {any} value - The typed object to serialize
    * @param {string} aliasName - The alias name of the typed object
    */
-  #serializeTypedObject(value, aliasName) { }
+  #serializeTypedObject(value, aliasName) {
+    const cache = this.#reference.has(value);
+
+    if (cache.referenced) {
+      return this.#serializeReference(cache.index);
+    }
+
+    this.#dynbuf.writeByte(Markers.AMF0.TYPED_OBJECT);
+    this.#dynbuf.writeUTF(aliasName);
+
+    for (const key in value) {
+      this.#dynbuf.writeUTF(key);
+      this.serialize(value[key]);
+    }
+
+    this.#dynbuf.writeShort(0);
+    this.#dynbuf.writeByte(Markers.AMF0.OBJECT_END);
+  }
 
   /**
    * Serializes a reference
