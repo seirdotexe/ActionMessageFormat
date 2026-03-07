@@ -1,9 +1,4 @@
-/**
- * @exports
- * @default
- * @class
- * @module AMF0
- */
+/** @module AMF0/Reference */
 export default class Reference {
   /**
    * Initialize the array to hold referenced 'seen' objects

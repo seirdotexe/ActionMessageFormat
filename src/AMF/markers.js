@@ -1,5 +1,5 @@
 /**
- * @module AMF
+ * @module AMF/Markers
  *
  * @typedef {object} AMF0Markers
  * @property {number} NUMBER

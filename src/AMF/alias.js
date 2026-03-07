@@ -1,9 +1,4 @@
-/**
- * @exports
- * @default
- * @class
- * @module AMF
- */
+/** @module AMF/ClassAlias */
 export default class ClassAlias {
   /**
    * Initialize a new WeakMap to store class->alias (aliases by their class)

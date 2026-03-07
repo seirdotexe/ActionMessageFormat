@@ -7,12 +7,7 @@ import Reference from './reference.js';
  * @typedef {import('../AMF/alias.js').default} ClassAlias
  */
 
-/**
- * @exports
- * @default
- * @class
- * @module AMF0
- */
+/** @module AMF0/Serializer */
 export default class Serializer {
   /**
    * The DynBuffer instance containing AMF0 bytes for this instance
@@ -184,7 +179,7 @@ export default class Serializer {
 
     this.#dynbuf.writeByte(Markers.AMF0.DATE);
     this.#dynbuf.writeDouble(value.getTime());
-    this.#dynbuf.writeShort(value.getTimezoneOffset()); // The spec says '0x0000' is written but this is not true
+    this.#dynbuf.writeShort(value.getTimezoneOffset()); // The spec clearly says '0x0000' should be written, but this isn't true. It's a tough case, but let's follow AVM
   }
 
   /**

@@ -4,12 +4,7 @@ import DynBuffer from '@seirdotexe/dynbuffer';
  * @typedef {import('../AMF/alias.js').default} ClassAlias
  */
 
-/**
- * @exports
- * @default
- * @class
- * @module AMF3
- */
+/** @module AMF3/Serializer */
 export default class Serializer {
   /**
    * The DynBuffer instance containing AMF3 bytes for this instance
