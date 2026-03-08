@@ -1,5 +1,4 @@
 import DynBuffer from '@seirdotexe/dynbuffer';
-import { isBoxedPrimitive } from 'node:util/types';
 import Markers from '../AMF/markers.js';
 import { determineArray, isNativeObject } from '../AMF/utils.js';
 import Reference from './reference.js';
@@ -71,9 +70,7 @@ export default class Serializer {
    * @returns {Serializer} Returns the AMF serializer to perform a swift flush in AMF entrypoint class
    */
   serialize(value) {
-    if (isBoxedPrimitive(value)) {
-      return this.serialize(value.valueOf());
-    } else if (value === null) {
+    if (value === null) {
       this.#serializeNull();
     } else if (value === undefined) {
       this.#serializeUndefined();
@@ -81,7 +78,6 @@ export default class Serializer {
       const type = value?.constructor?.name;
 
       switch (type) {
-        case 'Function': this.#serializeUndefined(); break;
         case 'Number': this.#serializeNumber(value); break;
         case 'Boolean': this.#serializeBoolean(value); break;
         case 'String': this.#serializeString(value); break;
