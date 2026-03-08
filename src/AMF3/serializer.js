@@ -41,9 +41,9 @@ export default class Serializer {
   }
 
   /**
-   * Serializes an object into AMF3 binary data
+   * Serializes an object into AMF binary data
    * @param {any} value - The value to serialize
-   * @returns {Serializer}
+   * @returns {Serializer} Returns the AMF serializer to perform a swift flush in AMF entrypoint class
    */
   serialize(value) {
     return this;

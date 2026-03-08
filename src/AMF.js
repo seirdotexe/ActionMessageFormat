@@ -33,7 +33,7 @@ export class AMF {
    */
   static registerDynamicPropertyWriter(method, version = 3) {
     if (method.length !== 1) {
-      throw new ReferenceError('A Dynamic Property Writer can only take 1 argument, used to pass objects for modification.');
+      throw new ReferenceError('A Dynamic Property Writer can only take 1 argument, which is used to pass objects for modification.');
     }
 
     this.#serializers[version].dynamicPropertyWriter = method;
