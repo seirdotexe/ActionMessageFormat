@@ -195,7 +195,29 @@ export default class Serializer {
 
     const arrInfo = determineArray(value);
 
-    // Todo
+    if (arrInfo.associative) {
+      if (arrInfo.sparse) { // Associative arrays can also contain sparse values. We need 2 separate loops for this
+        // Write sparse values only
+        for (let i = 0; i < value.length; i++) {
+          if (!Object.hasOwn(value, i)) {
+            this.#dynbuf.writeUTF(String(i));
+            this.serialize(value[i]);
+          }
+        }
+      }
+
+      // Write associative and/or dense values
+      for (const key in value) {
+        this.#dynbuf.writeUTF(key);
+        this.serialize(value[key]);
+      }
+    } else {
+      // Write sparse and/or dense values
+      for (let i = 0; i < value.length; i++) {
+        this.#dynbuf.writeUTF(String(i));
+        this.serialize(value[i]);
+      }
+    }
 
     this.#dynbuf.writeShort(0);
     this.#dynbuf.writeByte(Markers.AMF0.OBJECT_END);
