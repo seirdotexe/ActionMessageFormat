@@ -58,8 +58,6 @@ export default class Serializer {
    * @returns {Buffer} The buffer containing AMF bytes
    */
   flush() {
-    // Todo - Do we need to reset the references?
-
     const { stream } = this.#dynbuf;
 
     this.#dynbuf.clear();
@@ -251,7 +249,7 @@ export default class Serializer {
 
     if (aliasName) { // This is a registered typed object, so we serialize it as one
       this.#serializeTypedObject(value, aliasName);
-    } else if (!isNativeObject(constructor)) { // This is an unregistered typed object, so we serialize it as an object
+    } else if (!isNativeObject(constructor)) { // This is an unregistered typed object (AVM calls this an anonymous object), so we serialize it as an object
       this.#serializeObject(value);
     } else { // An unknown type was found, we do the right thing and write the unsupported marker
       this.#serializeUnsupported();
