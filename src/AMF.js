@@ -3,6 +3,9 @@ import ClassAlias from './AMF/alias.js';
 import { default as Serializer0 } from './AMF0/serializer.js';
 import { default as Serializer3 } from './AMF3/serializer.js';
 
+import { default as Deserializer0 } from './AMF0/deserializer.js';
+import { default as Deserializer3 } from './AMF3/deserializer.js';
+
 /**
  * @author SeirDotExe
  * @license BSD-3-Clause
@@ -23,6 +26,16 @@ export class AMF {
   static #serializers = {
     0: new Serializer0(this.classAlias),
     3: new Serializer3(this.classAlias)
+  };
+
+  /**
+   * Initialize the deserializers
+   * @static
+   * @type {{ 0: Deserializer0, 3: Deserializer3}}
+   */
+  static #deserializers = {
+    0: new Deserializer0(this.classAlias),
+    3: new Deserializer3(this.classAlias)
   };
 
   /**
@@ -50,6 +63,14 @@ export class AMF {
     return this.#serializers[version].serialize(value).flush();
   }
 
-
-  static deserialize(buffer, version = 3) { }
+  /**
+   * Deserializes AMF binary data to an object
+   * @static
+   * @param {Buffer} buffer - The AMF binary data
+   * @param {0|3} [version=3] - The AMF version
+   * @returns {any} The deserialized object
+   */
+  static deserialize(buffer, version = 3) {
+    return this.#deserializers[version].deserialize(buffer);
+  }
 }
