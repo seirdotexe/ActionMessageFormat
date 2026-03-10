@@ -5,7 +5,7 @@ import Reference from './reference.js';
 
 /**
  * @typedef {import('../AMF/alias.js').default} ClassAlias
- * @typedef {import('../AMF/options.js').AMFOptions} AMFOptions
+ * @typedef {import('../AMF/options.js').AMFSerializerOptions} AMFOptions
  */
 
 /** @module AMF0/Serializer */

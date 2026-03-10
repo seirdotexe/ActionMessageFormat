@@ -2,6 +2,7 @@ import DynBuffer from '@seirdotexe/dynbuffer';
 
 /**
  * @typedef {import('../AMF/alias.js').default} ClassAlias
+ * @typedef {import('../AMF/options.js').AMFSerializerOptions} AMFOptions
  */
 
 /** @module AMF3/Serializer */

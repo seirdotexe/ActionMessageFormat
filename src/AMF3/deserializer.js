@@ -3,6 +3,7 @@ import Markers from '../AMF/markers.js';
 
 /**
  * @typedef {import('../AMF/alias.js').default} ClassAlias
+ * @typedef {import('../AMF/options.js').AMFDeserializerOptions} AMFOptions
  */
 
 /** @module AMF0/Deserializer */
