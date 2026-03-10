@@ -1,9 +1,5 @@
 # TODO
 
-## AMF
-
-- A config object in `serialize()` and `deserialize()` for out of spec behavior?
-
 ## AMF0
 
 - Support for `Map` and `Set`

@@ -21,12 +21,27 @@ export default class Deserializer {
   #classAlias;
 
   /**
+   * Initialize the AMF options object holder
+   * @private
+   * @type {AMFOptions}
+   */
+  #options;
+
+  /**
    * Creates a new AMF3 deserializer
    * @param {ClassAlias} classAlias - The class alias internally coming from the AMF entrypoint class
    */
   constructor(classAlias) {
     this.#dynbuf = new DynBuffer();
     this.#classAlias = classAlias;
+  }
+
+  /**
+   * Cache the specified AMF options
+   * @param {AMFOptions} optionsObj - The AMF options object
+   */
+  set options(optionsObj) {
+    this.#options = optionsObj;
   }
 
   /**

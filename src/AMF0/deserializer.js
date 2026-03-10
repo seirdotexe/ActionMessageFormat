@@ -4,6 +4,7 @@ import Reference from './reference.js';
 
 /**
  * @typedef {import('../AMF/alias.js').default} ClassAlias
+ * @typedef {import('../AMF/options.js').AMFOptions} AMFOptions
  */
 
 /** @module AMF0/Deserializer */
@@ -26,6 +27,12 @@ export default class Deserializer {
    * @type {Reference}
    */
   #reference;
+  /**
+   * Initialize the AMF options object holder
+   * @private
+   * @type {AMFOptions}
+   */
+  #options;
 
   /**
    * Creates a new AMF0 deserializer
@@ -35,6 +42,14 @@ export default class Deserializer {
     this.#dynbuf = new DynBuffer();
     this.#classAlias = classAlias;
     this.#reference = new Reference();
+  }
+
+  /**
+   * Cache the specified AMF options
+   * @param {AMFOptions} optionsObj - The AMF options object
+   */
+  set options(optionsObj) {
+    this.#options = optionsObj;
   }
 
   /**

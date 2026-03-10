@@ -6,6 +6,8 @@ import { default as Serializer3 } from './AMF3/serializer.js';
 import { default as Deserializer0 } from './AMF0/deserializer.js';
 import { default as Deserializer3 } from './AMF3/deserializer.js';
 
+import AMFOptions from './AMF/options.js';
+
 /**
  * @author SeirDotExe
  * @license BSD-3-Clause
@@ -57,9 +59,12 @@ export class AMF {
    * @static
    * @param {any} value - Any supported value to serialize
    * @param {0|3} [version=3] - The AMF version
+   * @param {AMFOptions?} options - The options object which has certain settings to utilize different AMF behavior
    * @returns {Buffer} Returns the AMF data in a buffer
    */
-  static serialize(value, version = 3) {
+  static serialize(value, version = 3, options = AMFOptions) {
+    this.#serializers[version].options = options;
+
     return this.#serializers[version].serialize(value).flush();
   }
 
@@ -68,9 +73,12 @@ export class AMF {
    * @static
    * @param {Buffer} buffer - The AMF binary data
    * @param {0|3} [version=3] - The AMF version
+   * @param {AMFOptions?} options - The options object which has certain settings to utilize different AMF behavior
    * @returns {any} The deserialized object
    */
-  static deserialize(buffer, version = 3) {
+  static deserialize(buffer, version = 3, options = AMFOptions) {
+    this.#serializers[version].options = options;
+
     return this.#deserializers[version].deserialize(buffer);
   }
 }

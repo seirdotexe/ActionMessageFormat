@@ -5,6 +5,7 @@ import Reference from './reference.js';
 
 /**
  * @typedef {import('../AMF/alias.js').default} ClassAlias
+ * @typedef {import('../AMF/options.js').AMFOptions} AMFOptions
  */
 
 /** @module AMF0/Serializer */
@@ -33,6 +34,12 @@ export default class Serializer {
    * @type {Function}
    */
   #dynamicPropertyWriter;
+  /**
+   * Initialize the AMF options object holder
+   * @private
+   * @type {AMFOptions}
+   */
+  #options;
 
   /**
    * Creates a new AMF0 serializer
@@ -50,6 +57,14 @@ export default class Serializer {
    */
   set dynamicPropertyWriter(method) {
     this.#dynamicPropertyWriter = method;
+  }
+
+  /**
+   * Cache the specified AMF options
+   * @param {AMFOptions} optionsObj - The AMF options object
+   */
+  set options(optionsObj) {
+    this.#options = optionsObj;
   }
 
   /**
