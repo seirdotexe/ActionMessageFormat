@@ -158,7 +158,7 @@ export default class Deserializer {
     for (let key = this.#dynbuf.readUTF(); !!key || (this.#dynbuf.readByte() !== Markers.AMF0.OBJECT_END); key = this.#dynbuf.readUTF()) {
       value[key] = this.deserialize();
 
-      // Turn invalid values into empty values
+      //! Undocumented behavior - Turn invalid values into empty values
       if ((value[key] === null) || (value[key] === undefined)) {
         delete value[key];
       }

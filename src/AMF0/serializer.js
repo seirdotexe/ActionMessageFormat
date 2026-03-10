@@ -200,27 +200,26 @@ export default class Serializer {
     }
 
     this.#dynbuf.writeByte(Markers.AMF0.ECMA_ARRAY);
-    this.#dynbuf.writeUnsignedInt(value.length); // An associative array will always write 0 here by AVM. This is done on purpose; we must treat it as an object! The keys will turn into sparse entries which is unwanted
+    this.#dynbuf.writeUnsignedInt(value.length); //! Undocumented behavior - An associative array will always write 0 here by AVM. This is done on purpose; we must treat it as an object! The keys will turn into sparse entries which is unwanted
 
     const arrInfo = determineArray(value);
 
     /*
-    AVM secretly cleans up sparse entries in an array. It only cleans when setting array values by index
-    It does this to save buffer bytes, an optimization as you may say
+    AVM secretly cleans up sparse entries in an array. But very important to note: it only does this when setting array values by index. It does this to optimize buffer space
 
-    var value:Array = []; // won't clean when you do [,,1] - Node is unable to determine the difference
+    var value:Array = []; // It won't optimize when you do [,,1] - Also Node is unable to determine the difference. AVM probably inspects this behavior through a proxy class
     value[2] = 1;
 
     The AMF0 serialized hex will be: 08 00 00 00 03 00 01 32 00 3f f0 00 00 00 00 00 00 00 00 09
     01 32 = writeUTF length and the letter '2' followed by the number 1 in writeDouble
 
-    Because the length is still written, sparse entries will return, and the deserialized value will be unaffected
+    Because the length is still written, sparse entries will naturally return, and the deserialized value will be unaffected
     */
 
     // Write sparse and/or dense values
     if (arrInfo.sparse || arrInfo.dense) {
       for (let i = 0; i < value.length; i++) {
-        if (!Object.hasOwn(value, i) && this.#options.compressSparse) continue; // Undocumented optimization, skip sparse entries, used to preserve buffer bytes
+        if (!Object.hasOwn(value, i) && this.#options.compressSparse) continue; //! Undocumented behavior, skip sparse entries, used to preserve buffer bytes
 
         this.#dynbuf.writeUTF(String(i));
         this.serialize(value[i]);
@@ -255,7 +254,7 @@ export default class Serializer {
 
     this.#dynbuf.writeByte(Markers.AMF0.DATE);
     this.#dynbuf.writeDouble(value.getTime());
-    this.#dynbuf.writeShort(value.getTimezoneOffset()); // The spec clearly says '0x0000' should be written, but this isn't true. It's a tough case, but let's follow AVM
+    this.#dynbuf.writeShort(value.getTimezoneOffset()); //! Undocumented behavior - The spec clearly says '0x0000' should be written, but this isn't true. It does write the timezone offset
   }
 
   /**
