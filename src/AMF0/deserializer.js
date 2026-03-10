@@ -61,11 +61,14 @@ export default class Deserializer {
       case Markers.AMF0.REFERENCE: return this.#deserializeReference();
       case Markers.AMF0.OBJECT: return this.#deserializeObject();
       case Markers.AMF0.ECMA_ARRAY: return this.#deserializeArray();
+      case Markers.AMF0.DATE: return this.#deserializeDate();
+      case Markers.AMF0.TYPED_OBJECT: return this.#deserializeTypedObject();
     }
   }
 
   /**
    * Deserializes a number
+   * @private
    * @returns {number} The deserialized number
    */
   #deserializeNumber() {
@@ -74,6 +77,7 @@ export default class Deserializer {
 
   /**
    * Deserializes a boolean
+   * @private
    * @returns {boolean} The deserialized boolean
    */
   #deserializeBoolean() {
@@ -82,6 +86,7 @@ export default class Deserializer {
 
   /**
    * Deserializes a string
+   * @private
    * @returns {string} The deserialized string
    */
   #deserializeString() {
@@ -90,6 +95,7 @@ export default class Deserializer {
 
   /**
    * Deserializes a long string
+   * @private
    * @returns {string} The deserialized long string
    */
   #deserializeLongString() {
@@ -98,6 +104,7 @@ export default class Deserializer {
 
   /**
    * Deserializes a referenced object
+   * @private
    * @returns {object} The deserialized referenced object
    */
   #deserializeReference() {
@@ -106,6 +113,7 @@ export default class Deserializer {
 
   /**
    * Deserializes an object
+   * @private
    * @returns {object} The deserialized object
    */
   #deserializeObject() {
@@ -122,6 +130,7 @@ export default class Deserializer {
 
   /**
    * Deserializes an array
+   * @private
    * @returns {any[]} The deserialized array
    */
   #deserializeArray() {
@@ -138,6 +147,41 @@ export default class Deserializer {
       if ((value[key] === null) || (value[key] === undefined)) {
         delete value[key];
       }
+    }
+
+    return value;
+  }
+
+  /**
+   * Deserializes a date
+   * @private
+   * @returns {Date} The deserialized date
+   */
+  #deserializeDate() {
+    const time = this.#dynbuf.readDouble();
+    const timezoneOffset = this.#dynbuf.readShort(); // Todo - perhaps we can utilize this
+
+    const value = new Date(time);
+
+    this.#reference.set(value);
+
+    return value;
+  }
+
+  /**
+   * Deserializes a typed object
+   * @private
+   * @return {any} The deserialized typed object
+   */
+  #deserializeTypedObject() {
+    const aliasName = this.#dynbuf.readUTF();
+    const classObj = this.#classAlias.getClassByAlias(aliasName);
+    const value = new classObj();
+
+    this.#reference.set(value);
+
+    for (let key = this.#dynbuf.readUTF(); !!key || (this.#dynbuf.readByte() !== Markers.AMF0.OBJECT_END); key = this.#dynbuf.readUTF()) {
+      value[key] = this.deserialize();
     }
 
     return value;
