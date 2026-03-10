@@ -189,27 +189,36 @@ export default class Serializer {
 
     const arrInfo = determineArray(value);
 
-    if (arrInfo.associative) {
-      if (arrInfo.sparse) { // Associative arrays can also contain sparse values. We need 2 separate loops for this
-        // Write sparse values only
-        for (let i = 0; i < value.length; i++) {
-          if (!Object.hasOwn(value, i)) {
-            this.#dynbuf.writeUTF(String(i));
-            this.serialize(value[i]);
-          }
-        }
-      }
+    /*
+    AVM secretly cleans up sparse entries in an array. It only cleans when setting array values by index
+    It does this to save buffer bytes, an optimization as you may say
 
-      // Write associative and/or dense values
-      for (const key in value) {
-        this.#dynbuf.writeUTF(key);
-        this.serialize(value[key]);
-      }
-    } else {
-      // Write sparse and/or dense values
+    var value:Array = []; // won't clean when you do [,,1] - Node is unable to determine the difference
+    value[2] = 1;
+
+    The AMF0 serialized hex will be: 08 00 00 00 03 00 01 32 00 3f f0 00 00 00 00 00 00 00 00 09
+    01 32 = writeUTF length and the letter '2' followed by the number 1 in writeDouble
+
+    Because the length is still written, sparse entries will return, and the deserialized value will be unaffected
+    */
+
+    // Write sparse and/or dense values
+    if (arrInfo.sparse || arrInfo.dense) {
       for (let i = 0; i < value.length; i++) {
+        if (!Object.hasOwn(value, i)) continue; // Undocumented optimization, skip sparse entries, used to preserve buffer bytes
+
         this.#dynbuf.writeUTF(String(i));
         this.serialize(value[i]);
+      }
+    }
+
+    // Write associative values
+    if (arrInfo.associative) {
+      for (const key in value) {
+        if (isNaN(key)) { // Skip dense values
+          this.#dynbuf.writeUTF(key);
+          this.serialize(value[key]);
+        }
       }
     }
 
