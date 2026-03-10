@@ -78,6 +78,7 @@ export default class Deserializer {
       case Markers.AMF0.ECMA_ARRAY: return this.#deserializeArray();
       case Markers.AMF0.DATE: return this.#deserializeDate();
       case Markers.AMF0.TYPED_OBJECT: return this.#deserializeTypedObject();
+      case Markers.AMF0.AVMPLUS: return this.#deserializeAvmplus();
       default: return this.#deserializeUnidentifiedObject(marker);
     }
   }
