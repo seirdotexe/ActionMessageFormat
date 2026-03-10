@@ -78,6 +78,7 @@ export default class Deserializer {
       case Markers.AMF0.ECMA_ARRAY: return this.#deserializeArray();
       case Markers.AMF0.DATE: return this.#deserializeDate();
       case Markers.AMF0.TYPED_OBJECT: return this.#deserializeTypedObject();
+      default: return this.#deserializeUnidentifiedObject(marker);
     }
   }
 
@@ -200,5 +201,24 @@ export default class Deserializer {
     }
 
     return value;
+  }
+
+  /**
+   * Deserializes an AVMPLUS marker to switch to AMF3
+   * @private
+   */
+  #deserializeAvmplus() {
+    // Todo
+  }
+
+  /**
+   * Catch an unidentifiable object
+   * @private
+   * @param {number} marker - The unknown AMF0 marker
+   */
+  #deserializeUnidentifiedObject(marker) {
+    if ((marker !== Markers.AMF0.UNSUPPORTED) && this.#options.throwErrorUnsupported) {
+      throw new ReferenceError(`Unknown or unsupported AMF0 marker found: '${marker}'.`);
+    }
   }
 }
