@@ -48,5 +48,98 @@ export default class Deserializer {
       this.#dynbuf.writeBytes(buffer);
       this.#dynbuf.position = 0; // Reset so we can start reading data
     }
+
+    const marker = this.#dynbuf.readByte();
+
+    switch (marker) {
+      case Markers.AMF0.NULL: return null;
+      case Markers.AMF0.UNDEFINED: return undefined;
+      case Markers.AMF0.NUMBER: return this.#deserializeNumber();
+      case Markers.AMF0.BOOLEAN: return this.#deserializeBoolean();
+      case Markers.AMF0.STRING: return this.#deserializeString();
+      case Markers.AMF0.LONG_STRING: return this.#deserializeLongString();
+      case Markers.AMF0.REFERENCE: return this.#deserializeReference();
+      case Markers.AMF0.OBJECT: return this.#deserializeObject();
+      case Markers.AMF0.ECMA_ARRAY: return this.#deserializeArray();
+    }
+  }
+
+  /**
+   * Deserializes a number
+   * @returns {number} The deserialized number
+   */
+  #deserializeNumber() {
+    return this.#dynbuf.readDouble();
+  }
+
+  /**
+   * Deserializes a boolean
+   * @returns {boolean} The deserialized boolean
+   */
+  #deserializeBoolean() {
+    return this.#dynbuf.readBoolean();
+  }
+
+  /**
+   * Deserializes a string
+   * @returns {string} The deserialized string
+   */
+  #deserializeString() {
+    return this.#dynbuf.readUTF();
+  }
+
+  /**
+   * Deserializes a long string
+   * @returns {string} The deserialized long string
+   */
+  #deserializeLongString() {
+    return this.#dynbuf.readUTFBytes(this.#dynbuf.readUnsignedInt());
+  }
+
+  /**
+   * Deserializes a referenced object
+   * @returns {object} The deserialized referenced object
+   */
+  #deserializeReference() {
+    return this.#reference.get(this.#dynbuf.readUnsignedShort());
+  }
+
+  /**
+   * Deserializes an object
+   * @returns {object} The deserialized object
+   */
+  #deserializeObject() {
+    const value = {};
+
+    this.#reference.set(value);
+
+    for (let key = this.#dynbuf.readUTF(); !!key || (this.#dynbuf.readByte() !== Markers.AMF0.OBJECT_END); key = this.#dynbuf.readUTF()) {
+      value[key] = this.deserialize();
+    }
+
+    return value;
+  }
+
+  /**
+   * Deserializes an array
+   * @returns {any[]} The deserialized array
+   */
+  #deserializeArray() {
+    const value = [];
+
+    value.length = this.#dynbuf.readUnsignedInt();
+
+    this.#reference.set(value);
+
+    for (let key = this.#dynbuf.readUTF(); !!key || (this.#dynbuf.readByte() !== Markers.AMF0.OBJECT_END); key = this.#dynbuf.readUTF()) {
+      value[key] = this.deserialize();
+
+      // Turn invalid values into empty values
+      if ((value[key] === null) || (value[key] === undefined)) {
+        delete value[key];
+      }
+    }
+
+    return value;
   }
 }
