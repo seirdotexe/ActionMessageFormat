@@ -174,7 +174,7 @@ export default class Deserializer {
    */
   #deserializeDate() {
     const time = this.#dynbuf.readDouble();
-    const timezoneOffset = this.#dynbuf.readShort(); // Todo - perhaps we can utilize this
+    const timezoneOffset = this.#dynbuf.readShort(); // Todo - perhaps we can utilize this, option is there: dateOffset
 
     const value = new Date(time);
 

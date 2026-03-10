@@ -220,7 +220,7 @@ export default class Serializer {
     // Write sparse and/or dense values
     if (arrInfo.sparse || arrInfo.dense) {
       for (let i = 0; i < value.length; i++) {
-        if (!Object.hasOwn(value, i)) continue; // Undocumented optimization, skip sparse entries, used to preserve buffer bytes
+        if (!Object.hasOwn(value, i) && this.#options.compressSparse) continue; // Undocumented optimization, skip sparse entries, used to preserve buffer bytes
 
         this.#dynbuf.writeUTF(String(i));
         this.serialize(value[i]);
