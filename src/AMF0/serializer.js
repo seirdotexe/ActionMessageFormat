@@ -185,7 +185,7 @@ export default class Serializer {
     }
 
     this.#dynbuf.writeByte(Markers.AMF0.ECMA_ARRAY);
-    this.#dynbuf.writeUnsignedInt(value.length); // An associative array will always write 0 here. This seems to be done on purpose by AVM, to treat it as an 'object' perhaps?
+    this.#dynbuf.writeUnsignedInt(value.length); // An associative array will always write 0 here by AVM. This is done on purpose; we must treat it as an object! The keys will turn into sparse entries which is unwanted
 
     const arrInfo = determineArray(value);
 
