@@ -6,7 +6,7 @@
  * @property {number} BOOLEAN
  * @property {number} STRING
  * @property {number} OBJECT
- * @property {number} MOVIECLIP
+ * @property {number} MAP
  * @property {number} NULL
  * @property {number} UNDEFINED
  * @property {number} REFERENCE
@@ -16,7 +16,7 @@
  * @property {number} DATE
  * @property {number} LONG_STRING
  * @property {number} UNSUPPORTED
- * @property {number} RECORDSET
+ * @property {number} SET
  * @property {number} XML_DOCUMENT
  * @property {number} TYPED_OBJECT
  * @property {number} AVMPLUS
@@ -53,7 +53,7 @@ const Markers = {
     BOOLEAN: 0x01,
     STRING: 0x02,
     OBJECT: 0x03,
-    MOVIECLIP: 0x04,
+    MAP: 0x04, //! Off-spec - Replace unused 'MOVIECLIP' with 'MAP'
     NULL: 0x05,
     UNDEFINED: 0x06,
     REFERENCE: 0x07,
@@ -63,7 +63,7 @@ const Markers = {
     DATE: 0x0B,
     LONG_STRING: 0x0C,
     UNSUPPORTED: 0x0D,
-    RECORDSET: 0x0E,
+    SET: 0x0E, //! Off-spec - Replace unused 'RECORDSET' with 'SET'
     XML_DOCUMENT: 0x0F,
     TYPED_OBJECT: 0x10,
     AVMPLUS: 0x11

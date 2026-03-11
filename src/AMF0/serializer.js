@@ -219,7 +219,7 @@ export default class Serializer {
     // Write sparse and/or dense values
     if (arrInfo.sparse || arrInfo.dense) {
       for (let i = 0; i < value.length; i++) {
-        if (!Object.hasOwn(value, i) && this.#options.compressSparse) continue; //! Undocumented behavior, skip sparse entries, used to preserve buffer bytes
+        if (!Object.hasOwn(value, i) && this.#options.compressSparse) continue; //! Undocumented behavior - Skip sparse entries, used to preserve buffer bytes
 
         this.#dynbuf.writeUTF(String(i));
         this.serialize(value[i]);
@@ -270,8 +270,14 @@ export default class Serializer {
       this.#serializeTypedObject(value, aliasName);
     } else if (!isNativeObject(constructor)) { // This is an unregistered typed object (AVM calls this an anonymous object), so we serialize it as an object
       this.#serializeObject(value);
-    } else { // An unknown type was found, we do the right thing and write the unsupported marker
-      this.#serializeUnsupported();
+    } else { // An unknown type was found
+      if (constructor.name === 'Map') {
+        this.#options.castMapSet ? this.#serializeObject(Object.fromEntries(value)) : this.#serializeMap(value);
+      } else if (constructor.name === 'Set') {
+        this.#options.castMapSet ? this.#serializeArray([...value]) : this.#serializeSet(value);
+      } else {
+        this.#serializeUnsupported(); // We do the right thing and write the unsupported marker
+      }
     }
   }
 
@@ -308,6 +314,49 @@ export default class Serializer {
   #serializeReference(index) {
     this.#dynbuf.writeByte(Markers.AMF0.REFERENCE);
     this.#dynbuf.writeShort(index);
+  }
+
+  /**
+   * Serializes a map
+   * @private
+   * @param {Map} value - The map to serialize
+   */
+  #serializeMap(value) {
+    const cache = this.#reference.has(value);
+
+    if (cache.referenced) {
+      return this.#serializeReference(cache.index);
+    }
+
+    this.#dynbuf.writeByte(Markers.AMF0.MAP);
+
+    for (const [key, mapVal] of value) {
+      this.#dynbuf.writeUTF(key);
+      this.serialize(mapVal);
+    }
+
+    this.#dynbuf.writeShort(0);
+    this.#dynbuf.writeByte(Markers.AMF0.OBJECT_END);
+  }
+
+  /**
+   * Serializes a set
+   * @private
+   * @param {Set} value - The set to serialize
+   */
+  #serializeSet(value) {
+    const cache = this.#reference.has(value);
+
+    if (cache.referenced) {
+      return this.#serializeReference(cache.index);
+    }
+
+    this.#dynbuf.writeByte(Markers.AMF0.SET);
+    this.#dynbuf.writeUnsignedInt(value.size);
+
+    for (const setVal of value) {
+      this.serialize(setVal);
+    }
   }
 
   /**

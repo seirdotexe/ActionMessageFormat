@@ -79,6 +79,8 @@ export default class Deserializer {
       case Markers.AMF0.DATE: return this.#deserializeDate();
       case Markers.AMF0.TYPED_OBJECT: return this.#deserializeTypedObject();
       case Markers.AMF0.AVMPLUS: return this.#deserializeAvmplus();
+      case Markers.AMF0.MAP: return this.#deserializeMap();
+      case Markers.AMF0.SET: return this.#deserializeSet();
       default: return this.#deserializeUnidentifiedObject(marker);
     }
   }
@@ -176,7 +178,7 @@ export default class Deserializer {
    */
   #deserializeDate() {
     const time = this.#dynbuf.readDouble();
-    const timezoneOffset = this.#dynbuf.readShort(); // Todo - perhaps we can utilize this, option is there: dateOffset
+    const timezoneOffset = this.#dynbuf.readShort(); // Todo - Perhaps we can utilize this, the option is there: dateOffset
 
     const value = new Date(time);
 
@@ -209,7 +211,42 @@ export default class Deserializer {
    * @private
    */
   #deserializeAvmplus() {
-    // Todo
+    // Todo - Return something to AMF entrypoint class to recall serialize with version 3
+  }
+
+  /**
+   * Deserializes a map
+   * @private
+   * @returns {Map} The deserialized map
+   */
+  #deserializeMap() {
+    const value = new Map();
+
+    this.#reference.set(value);
+
+    for (let key = this.#dynbuf.readUTF(); !!key || (this.#dynbuf.readByte() !== Markers.AMF0.OBJECT_END); key = this.#dynbuf.readUTF()) {
+      value.set(key, this.deserialize());
+    }
+
+    return value;
+  }
+
+  /**
+   * Deserializes a set
+   * @private
+   * @returns {Set} The deserialized set
+   */
+  #deserializeSet() {
+    const value = new Set();
+    const size = this.#dynbuf.readUnsignedInt();
+
+    this.#reference.set(value);
+
+    for (let i = 0; i < size; i++) {
+      value.add(this.deserialize());
+    }
+
+    return value;
   }
 
   /**
