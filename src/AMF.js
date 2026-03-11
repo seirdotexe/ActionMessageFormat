@@ -77,7 +77,7 @@ export class AMF {
    * @returns {any} The deserialized object
    */
   static deserialize(buffer, version = 3, options = DeserializerOptions) {
-    this.#serializers[version].options = options;
+    this.#deserializers[version].options = options;
 
     return this.#deserializers[version].deserialize(buffer);
   }
