@@ -76,6 +76,7 @@ export default class Deserializer {
       case Markers.AMF0.REFERENCE: return this.#deserializeReference();
       case Markers.AMF0.OBJECT: return this.#deserializeObject();
       case Markers.AMF0.ECMA_ARRAY: return this.#deserializeArray();
+      case Markers.AMF0.STRICT_ARRAY: return this.#deserializeStrictArray();
       case Markers.AMF0.DATE: return this.#deserializeDate();
       case Markers.AMF0.TYPED_OBJECT: return this.#deserializeTypedObject();
       case Markers.AMF0.AVMPLUS: return this.#deserializeAvmplus();
@@ -169,6 +170,15 @@ export default class Deserializer {
     }
 
     return value;
+  }
+
+  /**
+   * Deserializes a strict array, which is only used in remoting
+   * @private
+   * @returns {any[]} The deserialized strict array
+   */
+  #deserializeStrictArray() {
+    // Todo
   }
 
   /**
