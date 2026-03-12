@@ -46,6 +46,28 @@ export default class Deserializer {
   }
 
   /**
+   * Reads a variable length unsigned 29-bit integer
+   * @private
+   * @returns {number} The decoded integer
+   */
+  #readUint29() {
+    let byte = this.#dynbuf.readUnsignedByte();
+    let value = byte & 0x7F;
+    if (!(byte & 0x80)) return value;
+
+    byte = this.#dynbuf.readUnsignedByte();
+    value = (value << 7) | (byte & 0x7F);
+    if (!(byte & 0x80)) return value;
+
+    byte = this.#dynbuf.readUnsignedByte();
+    value = (value << 7) | (byte & 0x7F);
+    if (!(byte & 0x80)) return value;
+
+    byte = this.#dynbuf.readUnsignedByte();
+    return (value << 8) | byte;
+  }
+
+  /**
    * Deserializes AMF binary data to an object
    * @param {buffer?} buffer - The buffer containing the AMF binary data, only applicable from base call in AMF entrypoint class
    * @returns {any} The deserialized object

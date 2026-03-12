@@ -45,6 +45,32 @@ export default class Serializer {
   }
 
   /**
+   * Writes a variable length unsigned 29-bit integer
+   * @private
+   * @param {number} value - The value to encode
+   * @throws {RangeError} If the given value is greater than 2^29 - 1
+   */
+  #writeUint29(value) {
+    if (value < 0x80) {
+      this.#dynbuf.writeByte(value);
+    } else if (value < 0x4000) {
+      this.#dynbuf.writeByte(((value >> 7) & 0x7F) | 0x80);
+      this.#dynbuf.writeByte(value & 0x7F);
+    } else if (value < 0x200000) {
+      this.#dynbuf.writeByte(((value >> 14) & 0x7F) | 0x80);
+      this.#dynbuf.writeByte(((value >> 7) & 0x7F) | 0x80);
+      this.#dynbuf.writeByte(value & 0x7F);
+    } else if (value < 0x40000000) {
+      this.#dynbuf.writeByte(((value >> 22) & 0x7F) | 0x80);
+      this.#dynbuf.writeByte(((value >> 15) & 0x7F) | 0x80);
+      this.#dynbuf.writeByte(((value >> 8) & 0x7F) | 0x80);
+      this.#dynbuf.writeByte(value & 0xFF);
+    } else {
+      throw new RangeError(`The value '${value}' is out of range for AMF3 U29.`);
+    }
+  }
+
+  /**
    * Flushes the DynBuffer instance by caching the current stream, clearing the holding stream, and returning the cached stream containing the AMF bytes
    * @returns {Buffer} The buffer containing AMF bytes
    */
