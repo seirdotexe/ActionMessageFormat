@@ -11,3 +11,4 @@
 ## AMF3
 
 - Everything
+- decorators for Externalizable
