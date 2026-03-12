@@ -241,15 +241,6 @@ export default class Serializer {
   }
 
   /**
-   * Serializes a strict array, which is only used in remoting
-   * @private
-   * @param {any[]} value - The strict array to serialize
-   */
-  #serializeStrictArray(value) {
-    // Todo
-  }
-
-  /**
    * Serializes a date
    * @private
    * @param {Date} value - The date to serialize

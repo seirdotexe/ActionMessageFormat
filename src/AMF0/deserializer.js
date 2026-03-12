@@ -76,10 +76,8 @@ export default class Deserializer {
       case Markers.AMF0.REFERENCE: return this.#deserializeReference();
       case Markers.AMF0.OBJECT: return this.#deserializeObject();
       case Markers.AMF0.ECMA_ARRAY: return this.#deserializeArray();
-      case Markers.AMF0.STRICT_ARRAY: return this.#deserializeStrictArray();
       case Markers.AMF0.DATE: return this.#deserializeDate();
       case Markers.AMF0.TYPED_OBJECT: return this.#deserializeTypedObject();
-      case Markers.AMF0.AVMPLUS: return this.#deserializeAvmplus();
       case Markers.AMF0.MAP: return this.#deserializeMap();
       case Markers.AMF0.SET: return this.#deserializeSet();
       default: return this.#deserializeUnidentifiedObject(marker);
@@ -173,15 +171,6 @@ export default class Deserializer {
   }
 
   /**
-   * Deserializes a strict array, which is only used in remoting
-   * @private
-   * @returns {any[]} The deserialized strict array
-   */
-  #deserializeStrictArray() {
-    // Todo
-  }
-
-  /**
    * Deserializes a date
    * @private
    * @returns {Date} The deserialized date
@@ -214,14 +203,6 @@ export default class Deserializer {
     }
 
     return value;
-  }
-
-  /**
-   * Deserializes an AVMPLUS marker to switch to AMF3
-   * @private
-   */
-  #deserializeAvmplus() {
-    // Todo - Return something to AMF entrypoint class to recall serialize with version 3
   }
 
   /**

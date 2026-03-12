@@ -6,7 +6,7 @@
 
 ## AMF0
 
-- AVMPLUS
+- AVM+
 
 ## AMF3
 
