@@ -1,5 +1,10 @@
 # TODO
 
+## Project
+
+- Marker support
+- Functionality support
+
 ## AMF General
 
 - Avoid filter to check for sparse arrays in `determineArray` while maintaining functionality
