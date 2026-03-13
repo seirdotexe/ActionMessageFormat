@@ -1,0 +1,91 @@
+/** @module AMF3/Reference */
+export default class Reference {
+  /**
+   * Initialize the array to hold referenced 'seen' strings
+   * @private
+   * @type {string[]}
+   */
+  #strings;
+  /**
+   * Initialize the array to hold referenced 'seen' objects
+   * @private
+   * @type {object[]}
+   */
+  #objects;
+  /**
+   * Initialize the array to hold referenced 'seen' traits. These values are hashed to improve performance
+   * @private
+   * @type {string[]}
+   */
+  #traits;
+
+  /**
+   * Creates a new AMF3 Reference holder
+   */
+  constructor() {
+    this.#strings = [];
+    this.#objects = [];
+    this.#traits = [];
+  }
+
+  /**
+   * Returns the referenced 'seen' strings, used for internal use
+   * @returns {string[]}
+   */
+  get strings() { return this.#strings; }
+  /**
+   * Returns the referenced 'seen' objects, used for internal use
+   * @returns {object[]}
+   */
+  get objects() { return this.#objects; }
+  /**
+   * Returns the referenced 'seen' traits, used for internal use
+   * @returns {string[]}
+   */
+  get traits() { return this.#traits; }
+
+  /**
+   * Retrieves a referenced value by its index
+   * @param {number} index - The index in the referenced type's array table to look up
+   * @param {'strings'|'objects'|'traits'} table - The reference table type
+   * @returns {object|string} The referenced value
+   */
+  get(index, table) {
+    const value = this[table][index];
+
+    if (table === 'traits') {
+      return JSON.parse(value); // Todo - Improve this
+    }
+
+    return value;
+  }
+
+  /**
+   * Sets an object to hold as a reference
+   * @param {object|string} value - The value to reference and mark as 'seen'
+   * @param {'strings'|'objects'|'traits'} table - The reference table type
+   */
+  set(value, table) {
+    if (table === 'traits') value = JSON.stringify(value); // Todo - Improve this by hashing the traits using something like 'node-object-hash'
+
+    this[table][this[table].length] = value;
+  }
+
+  /**
+   * Checks whether the given object is referenced (or, 'seen'). If not, then it's added. For every call, a 'cache' object is returned
+   * @param {object} - The object to check if it's referenced or not
+   * @param {'strings'|'objects'|'traits'} table - The reference table type
+   * @returns {{index: number, referenced: boolean}} The cache object; its index and if it's referenced or not
+   */
+  has(value, table) {
+    const index = this[table].indexOf(value);
+    const cache = { index, referenced: (index !== -1) };
+
+    if (!cache.referenced) this.set(value, table);
+
+    // It's simple, 'cache.referenced' will be false when the object is first seen; it's our first time seeing the object, so it won't be referenced.
+    // If the same object is seen again, then 'cache.referenced' will be true, and then it'll be taken care of in the application.
+
+    return cache;
+  }
+}
