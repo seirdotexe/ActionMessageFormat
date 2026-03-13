@@ -147,7 +147,7 @@ export default class Serializer {
       this.#dynbuf.writeByte(value & 0x1FFFFFFF); // Signed conversion
     } else {
       this.#dynbuf.writeByte(Markers.AMF3.DOUBLE);
-      this.#dynbuf.writeByte(value);
+      this.#dynbuf.writeDouble(value);
     }
   }
 
