@@ -13,7 +13,6 @@
 ## AMF3
 
 - Improve trait hashing instead of lazy JSON
-- Extend ByteArray support for Buffer, and other buffer sources?
 - Support for vector-object-type
 - Support for Set
 - Support for serializeUnidentifiedObject

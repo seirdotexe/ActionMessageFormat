@@ -110,7 +110,7 @@ export default class Serializer {
         case 'Object': this.#serializeObject(value); break;
         case 'Array': this.#serializeArray(value); break;
         case 'Date': this.#serializeDate(value); break;
-        case 'DynBuffer': this.#serializeByteArray(value); break;
+        case 'DynBuffer': case 'Buffer': this.#serializeByteArray(value); break;
         case 'Int32Array': case 'Uint32Array': case 'Float64Array': this.#serializeTypedArray(value, type); break;
         case 'Map': this.#serializeDictionary(value); break;
         //  Todo - serializeUnidentifiedObject
@@ -215,10 +215,16 @@ export default class Serializer {
   /**
    * Serializes a ByteArray (DynBuffer)
    * @private
-   * @param {DynBuffer} value - The ByteArray to serialize
+   * @param {DynBuffer|import('node:buffer').Buffer} value - The ByteArray to serialize
    */
   #serializeByteArray(value) {
-    // Todo - Support Buffer, and other buffer sources?
+    this.#dynbuf.writeByte(Markers.AMF3.BYTE_ARRAY);
+
+    const cache = this.#reference.has(value, 'objects');
+    if (cache.referenced) return this.#writeUint29(cache.index << 1);
+
+    this.#writeUint29((value.length << 1) | 1);
+    this.#dynbuf.writeBytes(value);
   }
 
   /**
