@@ -107,6 +107,13 @@ export default class Serializer {
         case 'Number': this.#serializeInteger(value); break;
         case 'Boolean': this.#serializeBoolean(value); break;
         case 'String': this.#serializeString(value); break;
+        case 'Object': this.#serializeObject(value); break;
+        case 'Array': this.#serializeArray(value); break;
+        case 'Date': this.#serializeDate(value); break;
+        case 'DynBuffer': this.#serializeByteArray(value); break;
+        case 'Int32Array': case 'Uint32Array': case 'Float64Array': this.#serializeTypedArray(value, type); break;
+        case 'Map': this.#serializeDictionary(value); break;
+        //  Todo - serializeUnidentifiedObject
       }
     }
 
@@ -170,5 +177,66 @@ export default class Serializer {
 
     this.#writeUint29((length << 1) | 1);
     this.#dynbuf.writeUTFBytes(value);
+  }
+
+  /**
+   * Serializes an object
+   * @private
+   * @param {object} value - The object to serialize
+   */
+  #serializeObject(value) {
+
+  }
+
+  /**
+   * Serializes an array
+   * @private
+   * @param {any[]} value - The array to serialize
+   */
+  #serializeArray(value) {
+
+  }
+
+  /**
+   * Serializes a date
+   * @private
+   * @param {Date} value - The date to serialize
+   */
+  #serializeDate(value) {
+    this.#dynbuf.writeByte(Markers.AMF3.DATE);
+
+    const cache = this.#reference.has(value, 'objects');
+    if (cache.referenced) return this.#writeUint29(cache.index << 1);
+
+    this.#writeUint29(1);
+    this.#dynbuf.writeDouble(value.getTime());
+  }
+
+  /**
+   * Serializes a ByteArray (DynBuffer)
+   * @private
+   * @param {DynBuffer} value - The ByteArray to serialize
+   */
+  #serializeByteArray(value) {
+    // Todo - Support Buffer, and other buffer sources?
+  }
+
+  /**
+   * Serializes a Vector (typed array)
+   * @private
+   * @param {Int32Array|Uint32Array|Float64Array} value - The Vector to serialize
+   * @param {'Int32Array'|'Uint32Array'|'Float64Array'} type - The type of the Vector to serialize
+   */
+  #serializeTypedArray(value, type) {
+    // Todo - Support for vector-object-type
+  }
+
+  /**
+   * Serializes a Dictionary (Map)
+   * @private
+   * @param {Map} value - The Dictionary to serialize
+   */
+  #serializeDictionary(value) {
+    // Todo - Support for Set
   }
 }

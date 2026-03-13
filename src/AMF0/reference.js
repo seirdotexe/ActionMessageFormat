@@ -15,6 +15,13 @@ export default class Reference {
   }
 
   /**
+   * Resets the references
+   */
+  reset() {
+    this.#objects = [];
+  }
+
+  /**
    * Retrieves an object by its index
    * @param {number} index - The index in the referenced objects array
    * @returns {object} The referenced object
