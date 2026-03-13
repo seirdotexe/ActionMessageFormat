@@ -167,10 +167,7 @@ export default class Serializer {
    */
   #serializeObject(value) {
     const cache = this.#reference.has(value);
-
-    if (cache.referenced) {
-      return this.#serializeReference(cache.index);
-    }
+    if (cache.referenced) return this.#serializeReference(cache.index);
 
     if (this.#dynamicPropertyWriter) {
       this.#dynamicPropertyWriter(value);
@@ -194,10 +191,7 @@ export default class Serializer {
    */
   #serializeArray(value) {
     const cache = this.#reference.has(value);
-
-    if (cache.referenced) {
-      return this.#serializeReference(cache.index);
-    }
+    if (cache.referenced) return this.#serializeReference(cache.index);
 
     this.#dynbuf.writeByte(Markers.AMF0.ECMA_ARRAY);
     this.#dynbuf.writeUnsignedInt(value.length); //! Undocumented behavior - An associative array will always write 0 here by AVM. This is done on purpose; we must treat it as an object! The keys will turn into sparse entries which is unwanted
@@ -247,10 +241,7 @@ export default class Serializer {
    */
   #serializeDate(value) {
     const cache = this.#reference.has(value);
-
-    if (cache.referenced) {
-      return this.#serializeReference(cache.index);
-    }
+    if (cache.referenced) return this.#serializeReference(cache.index);
 
     this.#dynbuf.writeByte(Markers.AMF0.DATE);
     this.#dynbuf.writeDouble(value.getTime());
@@ -289,10 +280,7 @@ export default class Serializer {
    */
   #serializeTypedObject(value, aliasName) {
     const cache = this.#reference.has(value);
-
-    if (cache.referenced) {
-      return this.#serializeReference(cache.index);
-    }
+    if (cache.referenced) return this.#serializeReference(cache.index);
 
     this.#dynbuf.writeByte(Markers.AMF0.TYPED_OBJECT);
     this.#dynbuf.writeUTF(aliasName);
@@ -323,10 +311,7 @@ export default class Serializer {
    */
   #serializeMap(value) {
     const cache = this.#reference.has(value);
-
-    if (cache.referenced) {
-      return this.#serializeReference(cache.index);
-    }
+    if (cache.referenced) return this.#serializeReference(cache.index);
 
     this.#dynbuf.writeByte(Markers.AMF0.MAP);
 
@@ -346,10 +331,7 @@ export default class Serializer {
    */
   #serializeSet(value) {
     const cache = this.#reference.has(value);
-
-    if (cache.referenced) {
-      return this.#serializeReference(cache.index);
-    }
+    if (cache.referenced) return this.#serializeReference(cache.index);
 
     this.#dynbuf.writeByte(Markers.AMF0.SET);
     this.#dynbuf.writeUnsignedInt(value.size);
