@@ -7,6 +7,7 @@
 
 ## AMF General
 
+- XML functionality
 - Avoid filter to check for sparse arrays in `determineArray` while maintaining functionality
 - Remoting functionality; strict array type. packet, header, and message class. testing AS3 NetConnection
 
