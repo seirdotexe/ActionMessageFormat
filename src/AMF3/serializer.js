@@ -301,6 +301,7 @@ export default class Serializer {
    * Serializes an unidentified object
    * @private
    * @param {any} value - The unidentified object to serialize
+   * @throws {ReferenceError} If an unknown AMF3 type has been found
    */
   #serializeUnidentifiedObject(value) {
     const { constructor } = Object.getPrototypeOf(value);
@@ -308,6 +309,8 @@ export default class Serializer {
 
     if (aliasName || !isNativeObject(constructor)) {
       this.#serializeObject(value); // Serialize typed and anonymous objects
+    } else if (this.#options.throwErrorUnsupported) {
+      throw new ReferenceError(`Unknown or unsupported AMF3 type found: '${constructor.name}'.`);
     }
   }
 }
