@@ -185,16 +185,22 @@ export default class Serializer {
    * @private
    * @param {object} value - The value to gather the traits from to serialize them
    * @returns {{className: string, externalizable: boolean, dynamic: boolean, keys: boolean, count: number}} The gathered traits information
+   * @throws {ReferenceError} When trying to serialize an unregistered externalizable class
    */
   #serializeTraits(value) {
-    const proto = Object.getPrototypeOf(value);
+    const { constructor } = Object.getPrototypeOf(value);
     const traits = {};
 
-    traits.className = this.#classAlias.getAliasByClass(proto.constructor) || '';
+    traits.className = this.#classAlias.getAliasByClass(constructor) || '';
     traits.externalizable = ('writeExternal' in value) && ('readExternal' in value); // Todo - Decorators, but this is viable for now
-    traits.dynamic = (value?.dynamic) || (!traits.className && proto.constructor.name === 'Object');
-    traits.keys = (proto.constructor.name === 'Object') ? [] : Object.keys(value); // Todo - What about Externalizable
+    traits.dynamic = (value?.dynamic) || (!traits.className && constructor.name === 'Object');
+    traits.keys = (traits.externalizable || constructor.name === 'Object') ? [] : Object.keys(value);
     traits.count = traits.keys.length;
+
+    // AMF3 requires externalizable objects to have a registered alias
+    if (traits.externalizable && !traits.className) {
+      throw new ReferenceError(`Tried to serialize an unregistered externalizable class: '${constructor.name}'.`);
+    }
 
     const cache = this.#reference.has(traits, 'traits');
     if (cache.referenced) {
@@ -203,7 +209,6 @@ export default class Serializer {
       this.#writeUint29(3 | (traits.externalizable ? 4 : 0) | (traits.dynamic ? 8 : 0) | (traits.count << 4)); // U29O-traits
       this.#serializeString(traits.className, false); // class-name
 
-      // Todo - Does this belong here
       traits.keys.forEach((traitKey) => this.#serializeString(traitKey, false)); // Write sealed member names
     }
 
@@ -230,7 +235,9 @@ export default class Serializer {
 
     // Todo - Externalizable and Dynamic Property Writer
 
-    if (traits.dynamic) {
+    if (traits.externalizable) {
+      value.writeExternal(this.#dynbuf);
+    } else if (traits.dynamic) {
       for (const key in value) {
         if (traits.keys.includes(key)) continue; // Todo - Check this
 
