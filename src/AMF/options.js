@@ -7,7 +7,7 @@
  *
  * @typedef {object} AMFDeserializerOptions
  * @property {boolean} dateOffset - **AMF0** - Whether to utilize date offset or not. Default to **false**
- * @property {boolean} throwErrorUnsupported - Whether to throw an error upon encountering an unknown marker while deserializing or not. Default to **true**
+ * @property {boolean} throwErrorUnsupported - Whether to throw an error upon encountering an unknown marker while serializing/deserializing or not. Default to **true**
  */
 
 /** @type {AMFSerializerOptions} */

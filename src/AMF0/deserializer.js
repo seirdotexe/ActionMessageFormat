@@ -244,6 +244,7 @@ export default class Deserializer {
    * Catch an unidentifiable object
    * @private
    * @param {number} marker - The unknown AMF0 marker
+   * @throws {ReferenceError} If an unknown AMF0 marker has been found
    */
   #deserializeUnidentifiedObject(marker) {
     if ((marker !== Markers.AMF0.UNSUPPORTED) && this.#options.throwErrorUnsupported) {
