@@ -23,3 +23,4 @@
 - Support for Set
 - Support for serializeUnidentifiedObject, what if we identify an unknown type?
 - Examine Decorators for Externalizable
+- Dynamic object information
