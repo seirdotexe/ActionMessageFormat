@@ -1,5 +1,6 @@
 import DynBuffer from '@seirdotexe/dynbuffer';
 import Markers from '../AMF/markers.js';
+import { isNativeObject } from '../AMF/utils.js';
 import Reference from './reference.js';
 
 /**
@@ -113,7 +114,7 @@ export default class Serializer {
         case 'DynBuffer': case 'Buffer': this.#serializeByteArray(value); break;
         case 'Int32Array': case 'Uint32Array': case 'Float64Array': this.#serializeTypedArray(value, type); break;
         case 'Map': this.#serializeDictionary(value); break;
-        //  Todo - serializeUnidentifiedObject
+        default: this.#serializeUnidentifiedObject(value);
       }
     }
 
@@ -179,13 +180,59 @@ export default class Serializer {
     this.#dynbuf.writeUTFBytes(value);
   }
 
+
+  #serializeTraits(value) {
+    const proto = Object.getPrototypeOf(value);
+    const traits = {};
+
+    traits.className = this.#classAlias.getAliasByClass(proto.constructor) || '';
+    traits.externalizable = false; // Todo
+    traits.dynamic = true; // Todo
+    traits.keys = []; // Todo
+    traits.count = traits.keys.length;
+
+    const cache = this.#reference.has(traits, 'traits');
+    if (cache.referenced) {
+      this.#writeUint29((cache.index << 2) | 1); // U29O-traits-ref
+    } else {
+      this.#writeUint29(3 | (traits.externalizable ? 4 : 0) | (traits.dynamic ? 8 : 0) | (traits.count << 4)); // U29O-traits
+      this.#serializeString(traits.className, false); // class-name
+
+      // Todo
+      traits.keys.forEach((traitKey) => this.#serializeString(traitKey, false)); // Write sealed member names
+    }
+
+    return traits;
+  }
+
   /**
    * Serializes an object
    * @private
    * @param {object} value - The object to serialize
    */
   #serializeObject(value) {
+    this.#dynbuf.writeByte(Markers.AMF3.OBJECT);
 
+    const cache = this.#reference.has(value, 'objects');
+    if (cache.referenced) return this.#writeUint29(cache.index << 1); // U29O-ref
+
+    const traits = this.#serializeTraits(value);
+
+    // Write sealed member values
+    for (let i = 0; i < traits.count; i++) {
+      this.serialize(value[traits.keys[i]]);
+    }
+
+    if (traits.dynamic) {
+      for (const key in value) {
+        if (traits.keys.includes(key)) continue; // Todo - Check this
+
+        this.#serializeString(key, false);
+        this.serialize(value[key]);
+      }
+
+      this.#writeUint29(1); // Dynamic object terminator
+    }
   }
 
   /**
@@ -244,5 +291,19 @@ export default class Serializer {
    */
   #serializeDictionary(value) {
     // Todo - Support for Set
+  }
+
+  /**
+   * Serializes an unidentified object
+   * @private
+   * @param {any} value - The unidentified object to serialize
+   */
+  #serializeUnidentifiedObject(value) {
+    const { constructor } = Object.getPrototypeOf(value);
+    const aliasName = this.#classAlias.getAliasByClass(constructor);
+
+    if (aliasName || !isNativeObject(constructor)) {
+      this.#serializeObject(value); // Serialize typed and anonymous objects
+    }
   }
 }
