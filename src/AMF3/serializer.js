@@ -200,7 +200,7 @@ export default class Serializer {
     traits.externalizable = ('writeExternal' in value) && ('readExternal' in value); // Todo - Decorators, but this is viable for now
     // Whether the value's class is dynamic. This is a tough one as every object in JS is dynamic; you can always add properties. To give functionality to mark a class as being dynamic, we check a getter named 'dynamic'
     traits.dynamic = (Object.getOwnPropertyDescriptor(proto, 'dynamic')?.get && value?.dynamic) || (!traits.className && proto.constructor.name === 'Object');
-    // The identified keys of the value, only applicable to typed objects
+    // The identified sealed members of the value, only applicable to typed objects
     traits.keys = (traits.externalizable || proto.constructor.name === 'Object') ? [] : Object.keys(value);
     // Last, the amount of keys
     traits.count = traits.keys.length;
