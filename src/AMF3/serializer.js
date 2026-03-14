@@ -181,41 +181,6 @@ export default class Serializer {
   }
 
   /**
-   * Serializes traits from an object
-   * @private
-   * @param {object} value - The value to gather the traits from to serialize them
-   * @returns {{className: string, externalizable: boolean, dynamic: boolean, keys: boolean, count: number}} The gathered traits information
-   * @throws {ReferenceError} When trying to serialize an unregistered externalizable class
-   */
-  #serializeTraits(value) {
-    const { constructor } = Object.getPrototypeOf(value);
-    const traits = {};
-
-    traits.className = this.#classAlias.getAliasByClass(constructor) || '';
-    traits.externalizable = ('writeExternal' in value) && ('readExternal' in value); // Todo - Decorators, but this is viable for now
-    traits.dynamic = (value?.dynamic) || (!traits.className && constructor.name === 'Object');
-    traits.keys = (traits.externalizable || constructor.name === 'Object') ? [] : Object.keys(value);
-    traits.count = traits.keys.length;
-
-    // AMF3 requires externalizable objects to have a registered alias
-    if (traits.externalizable && !traits.className) {
-      throw new ReferenceError(`Tried to serialize an unregistered externalizable class: '${constructor.name}'.`);
-    }
-
-    const cache = this.#reference.has(traits, 'traits');
-    if (cache.referenced) {
-      this.#writeUint29((cache.index << 2) | 1); // U29O-traits-ref
-    } else {
-      this.#writeUint29(3 | (traits.externalizable ? 4 : 0) | (traits.dynamic ? 8 : 0) | (traits.count << 4)); // U29O-traits
-      this.#serializeString(traits.className, false); // class-name
-
-      traits.keys.forEach((traitKey) => this.#serializeString(traitKey, false)); // Write sealed member names
-    }
-
-    return traits;
-  }
-
-  /**
    * Serializes an object
    * @private
    * @param {object} value - The object to serialize
@@ -223,23 +188,48 @@ export default class Serializer {
   #serializeObject(value) {
     this.#dynbuf.writeByte(Markers.AMF3.OBJECT);
 
-    const cache = this.#reference.has(value, 'objects');
-    if (cache.referenced) return this.#writeUint29(cache.index << 1); // U29O-ref
+    const cacheObj = this.#reference.has(value, 'objects');
+    if (cacheObj.referenced) return this.#writeUint29(cacheObj.index << 1); // U29O-ref
 
-    const traits = this.#serializeTraits(value);
+    const proto = Object.getPrototypeOf(value);
+    const traits = {};
+
+    // The identified class name of the value. Empty for regular objects, else it's defined by a registered class alias
+    traits.className = this.#classAlias.getAliasByClass(proto.constructor) || '';
+    // Whether the value is externalizable. It gives more functionality in how to write/read properties
+    traits.externalizable = ('writeExternal' in value) && ('readExternal' in value); // Todo - Decorators, but this is viable for now
+    // Whether the value's class is dynamic. This is a tough one as every object in JS is dynamic; you can always add properties. To give functionality to mark a class as being dynamic, we check a getter named 'dynamic'
+    traits.dynamic = (Object.getOwnPropertyDescriptor(proto, 'dynamic')?.get && value?.dynamic) || (!traits.className && proto.constructor.name === 'Object');
+    // The identified keys of the value, only applicable to typed objects
+    traits.keys = (traits.externalizable || proto.constructor.name === 'Object') ? [] : Object.keys(value);
+    // Last, the amount of keys
+    traits.count = traits.keys.length;
+
+    // AMF3 requires externalizable objects to have a registered alias
+    if (traits.externalizable && !traits.className) {
+      throw new ReferenceError(`Tried to serialize an unregistered externalizable class: '${proto.constructor.name}'.`);
+    }
+
+    const cacheTraits = this.#reference.has(traits, 'traits');
+    if (cacheTraits.referenced) {
+      this.#writeUint29((cacheTraits.index << 2) | 1); // U29O-traits-ref
+    } else {
+      this.#writeUint29(3 | (traits.externalizable ? 4 : 0) | (traits.dynamic ? 8 : 0) | (traits.count << 4)); // U29O-traits
+      this.#serializeString(traits.className, false); // class-name
+
+      traits.keys.forEach((traitKey) => this.#serializeString(traitKey, false)); // Write sealed member names first as specified in the spec
+    }
 
     // Write sealed member values
     for (let i = 0; i < traits.count; i++) {
       this.serialize(value[traits.keys[i]]);
     }
 
-    // Todo - Externalizable and Dynamic Property Writer
-
     if (traits.externalizable) {
       value.writeExternal(this.#dynbuf);
     } else if (traits.dynamic) {
       for (const key in value) {
-        if (traits.keys.includes(key)) continue; // Todo - Check this
+        if (traits.keys.includes(key)) continue; // This is necessary to prevent writing sealed member names a second time
 
         this.#serializeString(key, false);
         this.serialize(value[key]);
