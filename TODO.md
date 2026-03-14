@@ -21,5 +21,5 @@
 - Improve trait hashing instead of lazy JSON
 - Support for vector-object-type
 - Support for Set
-- Support for serializeUnidentifiedObject
-- Decorators for Externalizable testing
+- Support for serializeUnidentifiedObject, what if we identify an unknown type?
+- Examine Decorators for Externalizable
