@@ -180,15 +180,20 @@ export default class Serializer {
     this.#dynbuf.writeUTFBytes(value);
   }
 
-
+  /**
+   * Serializes traits from an object
+   * @private
+   * @param {object} value - The value to gather the traits from to serialize them
+   * @returns {{className: string, externalizable: boolean, dynamic: boolean, keys: boolean, count: number}} The gathered traits information
+   */
   #serializeTraits(value) {
     const proto = Object.getPrototypeOf(value);
     const traits = {};
 
     traits.className = this.#classAlias.getAliasByClass(proto.constructor) || '';
-    traits.externalizable = false; // Todo
-    traits.dynamic = true; // Todo
-    traits.keys = []; // Todo
+    traits.externalizable = ('writeExternal' in value) && ('readExternal' in value); // Todo - Decorators, but this is viable for now
+    traits.dynamic = (value?.dynamic) || (!traits.className && proto.constructor.name === 'Object');
+    traits.keys = (proto.constructor.name === 'Object') ? [] : Object.keys(value); // Todo - What about Externalizable
     traits.count = traits.keys.length;
 
     const cache = this.#reference.has(traits, 'traits');
@@ -198,7 +203,7 @@ export default class Serializer {
       this.#writeUint29(3 | (traits.externalizable ? 4 : 0) | (traits.dynamic ? 8 : 0) | (traits.count << 4)); // U29O-traits
       this.#serializeString(traits.className, false); // class-name
 
-      // Todo
+      // Todo - Does this belong here
       traits.keys.forEach((traitKey) => this.#serializeString(traitKey, false)); // Write sealed member names
     }
 
@@ -222,6 +227,8 @@ export default class Serializer {
     for (let i = 0; i < traits.count; i++) {
       this.serialize(value[traits.keys[i]]);
     }
+
+    // Todo - Externalizable and Dynamic Property Writer
 
     if (traits.dynamic) {
       for (const key in value) {
