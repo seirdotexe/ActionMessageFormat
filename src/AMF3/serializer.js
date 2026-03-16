@@ -145,7 +145,7 @@ export default class Serializer {
   #serializeInteger(value) {
     if ((value << 3 >> 3) === value) { // Does the value fit into 29 bits?
       this.#dynbuf.writeByte(Markers.AMF3.INTEGER);
-      this.#dynbuf.writeByte(value & 0x1FFFFFFF); // Signed conversion
+      this.#writeUint29(value & 0x1FFFFFFF); // Signed conversion
     } else {
       this.#dynbuf.writeByte(Markers.AMF3.DOUBLE);
       this.#dynbuf.writeDouble(value);
