@@ -1,5 +1,6 @@
 import DynBuffer from '@seirdotexe/dynbuffer';
 import Markers from '../AMF/markers.js';
+import Reference from './reference.js';
 
 /**
  * @typedef {import('../AMF/alias.js').default} ClassAlias
@@ -20,7 +21,12 @@ export default class Deserializer {
    * @type {ClassAlias}
    */
   #classAlias;
-
+  /**
+   * Initialize the AMF0 reference holder
+   * @private
+   * @type {Reference}
+   */
+  #reference;
   /**
    * Initialize the AMF options object holder
    * @private
@@ -35,6 +41,7 @@ export default class Deserializer {
   constructor(classAlias) {
     this.#dynbuf = new DynBuffer();
     this.#classAlias = classAlias;
+    this.#reference = new Reference();
   }
 
   /**
@@ -78,5 +85,74 @@ export default class Deserializer {
       this.#dynbuf.writeBytes(buffer);
       this.#dynbuf.position = 0; // Reset so we can start reading data
     }
+
+    const marker = this.#dynbuf.readByte();
+
+    switch (marker) {
+      case Markers.AMF3.NULL: return null;
+      case Markers.AMF3.UNDEFINED: return undefined;
+      case Markers.AMF3.TRUE: case Markers.AMF3.FALSE: return this.#deserializeBoolean(marker);
+      case Markers.AMF3.INTEGER: case Markers.AMF3.DOUBLE: return this.#deserializeInteger(marker);
+      case Markers.AMF3.STRING: return this.#deserializeString();
+      case Markers.AMF3.DATE: return this.#deserializeDate();
+    }
+  }
+
+  /**
+   * Deserializes a boolean
+   * @private
+   * @param {2|3} marker - The marker representing one of the two boolean markers, true or false
+   * @returns {boolean} The deserialized boolean
+   */
+  #deserializeBoolean(marker) {
+    return (marker === Markers.AMF3.TRUE);
+  }
+
+  /**
+   * Deserializes an integer
+   * @private
+   * @param {4|5} marker - The marker representing one of the two 'number' markers, integer or double
+   * @returns {number} The deserialized integer
+   */
+  #deserializeInteger(marker) {
+    if (marker === Markers.AMF3.INTEGER) {
+      return (this.#readUint29() << 3 >> 3);
+    } else {
+      return this.#dynbuf.readDouble();
+    }
+  }
+
+  /**
+   * Deserializes a string
+   * @private
+   * @returns {string} The deserialized string
+   */
+  #deserializeString() {
+    const ref = this.#readUint29();
+    if ((ref & 1) === 0) return this.#reference.get(ref >> 1, 'strings');
+
+    const length = (ref >> 1);
+    const value = this.#dynbuf.readUTFBytes(length);
+
+    if (length > 0) this.#reference.set(value, 'strings');
+
+    return value;
+  }
+
+
+  /**
+   * Deserializes a date
+   * @private
+   * @returns {Date} The deserialized date
+   */
+  #deserializeDate() {
+    const ref = this.#readUint29();
+    if ((ref & 1) === 0) return this.#reference.get(ref >> 1, 'objects');
+
+    const value = new Date(this.#dynbuf.readDouble());
+
+    this.#reference.set(value, 'objects');
+
+    return value;
   }
 }
