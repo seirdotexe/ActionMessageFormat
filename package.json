@@ -13,7 +13,8 @@
     "node": "^24"
   },
   "dependencies": {
-    "@seirdotexe/dynbuffer": "^1.0.1"
+    "@seirdotexe/dynbuffer": "^1.0.1",
+    "fast-json-stringify": "^6.3.0"
   },
   "homepage": "https://github.com/seirdotexe/ActionMessageFormat",
   "repository": "github:seirdotexe/ActionMessageFormat",

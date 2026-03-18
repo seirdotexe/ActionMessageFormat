@@ -1,0 +1,24 @@
+{
+  "title": "AMF3 traits schema",
+  "type": "object",
+  "properties": {
+    "className": {
+      "type": "string"
+    },
+    "externalizable": {
+      "type": "boolean"
+    },
+    "dynamic": {
+      "type": "boolean"
+    },
+    "keys": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "count": {
+      "type": "integer"
+    }
+  }
+}

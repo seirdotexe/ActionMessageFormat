@@ -1,3 +1,6 @@
+import fastJson from 'fast-json-stringify';
+import traitSchema from '../AMF/traitschema.json' with { type: 'json' };
+
 /** @module AMF3/Reference */
 export default class Reference {
   /**
@@ -18,6 +21,12 @@ export default class Reference {
    * @type {string[]}
    */
   #traits;
+  /**
+   * Initialize the JSON stringify tool for traits
+   * @private
+   * @type {Function}
+   */
+  #stringify;
 
   /**
    * Creates a new AMF3 Reference holder
@@ -26,6 +35,7 @@ export default class Reference {
     this.#strings = [];
     this.#objects = [];
     this.#traits = [];
+    this.#stringify = fastJson(traitSchema);
   }
 
   /**
@@ -53,9 +63,7 @@ export default class Reference {
   get(index, table) {
     const value = this[table][index];
 
-    if (table === 'traits') {
-      return JSON.parse(value); // Todo - Improve this
-    }
+    if (table === 'traits') return JSON.parse(value);
 
     return value;
   }
@@ -66,7 +74,7 @@ export default class Reference {
    * @param {'strings'|'objects'|'traits'} table - The reference table type
    */
   set(value, table) {
-    if (table === 'traits') value = JSON.stringify(value); // Todo - Improve this by hashing the traits using something like 'node-object-hash'
+    if (table === 'traits') value = this.#stringify(value);
 
     this[table][this[table].length] = value;
   }
