@@ -74,8 +74,6 @@ export default class Reference {
    * @param {'strings'|'objects'|'traits'} table - The reference table type
    */
   set(value, table) {
-    if (table === 'traits') value = this.#stringify(value);
-
     this[table][this[table].length] = value;
   }
 
@@ -86,13 +84,16 @@ export default class Reference {
    * @returns {{index: number, referenced: boolean}} The cache object; its index and if it's referenced or not
    */
   has(value, table) {
-    const index = this[table].indexOf(value);
+    // We need to stringify the trait object beforehand
+    let traitStringified; if (table === 'traits') traitStringified = this.#stringify(value);
+
+    const index = this[table].indexOf((table === 'traits') ? traitStringified : value);
     const cache = { index, referenced: (index !== -1) };
 
-    if (!cache.referenced) this.set(value, table);
+    if (!cache.referenced) this.set((table === 'traits') ? traitStringified : value, table);
 
-    // It's simple, 'cache.referenced' will be false when the object is first seen; it's our first time seeing the object, so it won't be referenced.
-    // If the same object is seen again, then 'cache.referenced' will be true, and then it'll be taken care of in the application.
+    // It's simple, 'cache.referenced' will be false when the object is first seen; it's our first time seeing the object, so it won't be referenced
+    // If the same object is seen again, then 'cache.referenced' will be true, and then it'll be taken care of in the application
 
     return cache;
   }
