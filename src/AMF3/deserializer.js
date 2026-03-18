@@ -95,6 +95,7 @@ export default class Deserializer {
       case Markers.AMF3.INTEGER: case Markers.AMF3.DOUBLE: return this.#deserializeInteger(marker);
       case Markers.AMF3.STRING: return this.#deserializeString();
       case Markers.AMF3.DATE: return this.#deserializeDate();
+      case Markers.AMF3.OBJECT: return this.#deserializeObject();
     }
   }
 
@@ -154,5 +155,65 @@ export default class Deserializer {
     this.#reference.set(value, 'objects');
 
     return value;
+  }
+
+  /**
+   * Deserializes an object
+   * @private
+   * @returns {object} The deserialized object
+   * @throws {ReferenceError} IF an attempt is made to deserialize unregistered class
+   */
+  #deserializeObject() {
+    const ref = this.#readUint29();
+    if ((ref & 1) === 0) return this.#reference.get(ref >> 1, 'objects');
+
+    let value = {};
+    let traits = { className: null, externalizable: null, dynamic: null, keys: [], count: null };
+
+    if ((ref & 3) === 1) {
+      traits = this.#reference.get(ref >> 2, 'traits');
+    } else {
+      traits.className = this.#deserializeString();
+      traits.externalizable = ((ref & 4) === 4);
+      traits.dynamic = ((ref & 8) === 8);
+      traits.count = (ref >> 4);
+
+      for (let i = 0; i < traits.count; i++) {
+        traits.keys[i] = this.#deserializeString();
+      }
+
+      this.#reference.set(traits, 'traits');
+    }
+
+    const classObj = (traits.externalizable || traits.className !== '') ? this.#classAlias.getClassByAlias(traits.className) : undefined;
+
+    if (traits.externalizable || traits.className !== '') {
+      if (!classObj) throw new ReferenceError(`Tried to deserialize an unregistered class: '${traits.className}'.`);
+
+      value = new classObj();
+      this.#reference.set(value, 'objects'); // Important reference set for registered classes!
+
+      if (traits.externalizable) {
+        value.readExternal(this.#dynbuf);
+
+        return value;
+      }
+    }
+
+    if (traits.dynamic && traits.className === '') {
+      for (let key = this.#deserializeString(); key !== ''; key = this.#deserializeString()) {
+        value[key] = this.deserialize();
+      }
+
+      this.#reference.set(value, 'objects');
+
+      return value;
+    } else {
+      for (let i = 0; i < traits.count; i++) {
+        value[traits.keys[i]] = this.deserialize();
+      }
+
+      return value;
+    }
   }
 }
