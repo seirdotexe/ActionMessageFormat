@@ -184,6 +184,7 @@ export default class Serializer {
    * Serializes an object
    * @private
    * @param {object} value - The object to serialize
+   * @throws {ReferenceError} IF an attempt is made to serialize unregistered externalizable class
    */
   #serializeObject(value) {
     this.#dynbuf.writeByte(Markers.AMF3.OBJECT);
