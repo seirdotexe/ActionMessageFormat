@@ -161,7 +161,7 @@ export default class Deserializer {
    * Deserializes an object
    * @private
    * @returns {object} The deserialized object
-   * @throws {ReferenceError} IF an attempt is made to deserialize unregistered class
+   * @throws {ReferenceError} If an attempt is made to deserialize unregistered class
    */
   #deserializeObject() {
     const ref = this.#readUint29();
