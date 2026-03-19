@@ -8,6 +8,7 @@
  * @typedef {object} AMFDeserializerOptions
  * @property {boolean} dateOffset - **AMF0** - Whether to utilize date offset or not. Default to **false**
  * @property {boolean} throwErrorUnsupported - Whether to throw an error upon encountering an unknown marker while serializing/deserializing or not. Default to **true**
+ * @property {boolean} strictDynamic - **AMF3** - Whether to seal a class when the getter 'dynamic' has been set to 'false'. Default to **true**
  */
 
 /** @type {AMFSerializerOptions} */
@@ -19,5 +20,6 @@ export const SerializerOptions = {
 /** @type {AMFDeserializerOptions} */
 export const DeserializerOptions = {
   dateOffset: false,
-  throwErrorUnsupported: true
+  throwErrorUnsupported: true,
+  strictDynamic: true
 };

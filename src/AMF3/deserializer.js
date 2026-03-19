@@ -213,6 +213,10 @@ export default class Deserializer {
         value[traits.keys[i]] = this.deserialize();
       }
 
+      if (Object.getOwnPropertyDescriptor(Object.getPrototypeOf(value), 'dynamic')?.get && !traits.dynamic && this.#options.strictDynamic) {
+        Object.seal(value);
+      }
+
       return value;
     }
   }
