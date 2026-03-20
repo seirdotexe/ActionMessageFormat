@@ -184,7 +184,7 @@ export default class Serializer {
    * Serializes an object
    * @private
    * @param {object} value - The object to serialize
-   * @throws {ReferenceError} IF an attempt is made to serialize unregistered externalizable class
+   * @throws {ReferenceError} IF an attempt is made to serialize an unregistered externalizable class
    */
   #serializeObject(value) {
     this.#dynbuf.writeByte(Markers.AMF3.OBJECT);
@@ -230,13 +230,14 @@ export default class Serializer {
       value.writeExternal(this.#dynbuf);
     } else if (traits.dynamic) {
       for (const key in value) {
-        if (traits.keys.includes(key)) continue; // This is necessary to prevent writing sealed member names a second time
+        console.log(key, traits.keys.includes(key));
+        if (traits.keys.includes(key)) continue; // This is necessary to prevent writing sealed member names a second time for registered classes
 
         this.#serializeString(key, false);
         this.serialize(value[key]);
       }
 
-      this.#writeUint29(1); // Dynamic object terminator
+      this.#writeUint29(1); // Dynamic object terminator that'll get read as an empty string
     }
   }
 

@@ -161,22 +161,22 @@ export default class Deserializer {
    * Deserializes an object
    * @private
    * @returns {object} The deserialized object
-   * @throws {ReferenceError} If an attempt is made to deserialize unregistered class
+   * @throws {ReferenceError} If an attempt is made to deserialize an unregistered class
    */
   #deserializeObject() {
     const ref = this.#readUint29();
     if ((ref & 1) === 0) return this.#reference.get(ref >> 1, 'objects');
 
     let value = {};
-    let traits = { className: null, externalizable: null, dynamic: null, keys: [], count: null };
+    let traits = { className: null, externalizable: null, dynamic: null, keys: [], count: null }; // Initialize for jsdoc
 
-    if ((ref & 3) === 1) {
+    if ((ref & 3) === 1) { // Extract the lowest 2 bits, and if they equal to 1 (true), then this trait is referenceable, else we need to read it
       traits = this.#reference.get(ref >> 2, 'traits');
     } else {
       traits.className = this.#deserializeString();
-      traits.externalizable = ((ref & 4) === 4);
-      traits.dynamic = ((ref & 8) === 8);
-      traits.count = (ref >> 4);
+      traits.externalizable = ((ref & 4) === 4); // Bit 2 (0x04)
+      traits.dynamic = ((ref & 8) === 8); // Bit 3 (0x08)
+      traits.count = (ref >> 4); // Bits 4 and above
 
       for (let i = 0; i < traits.count; i++) {
         traits.keys[i] = this.#deserializeString();
@@ -185,8 +185,8 @@ export default class Deserializer {
       this.#reference.set(traits, 'traits');
     }
 
+    // Handle externalizable classes or registered classes
     const classObj = (traits.externalizable || traits.className !== '') ? this.#classAlias.getClassByAlias(traits.className) : undefined;
-
     if (traits.externalizable || traits.className !== '') {
       if (!classObj) throw new ReferenceError(`Tried to deserialize an unregistered class: '${traits.className}'.`);
 
@@ -200,19 +200,20 @@ export default class Deserializer {
       }
     }
 
-    if (traits.dynamic && traits.className === '') {
-      for (let key = this.#deserializeString(); key !== ''; key = this.#deserializeString()) {
+    if (traits.dynamic && traits.className === '') { // Regular objects
+      for (let key = this.#deserializeString(); key !== ''; key = this.#deserializeString()) { // Read until uint29 terminator
         value[key] = this.deserialize();
       }
 
       this.#reference.set(value, 'objects');
 
       return value;
-    } else {
+    } else { // Registered class where we already know the keys
       for (let i = 0; i < traits.count; i++) {
         value[traits.keys[i]] = this.deserialize();
       }
 
+      // Seal the class when the 'dynamic' getter is explicitly set to false to disallow adding properties to the class
       if (Object.getOwnPropertyDescriptor(Object.getPrototypeOf(value), 'dynamic')?.get && !traits.dynamic && this.#options.strictDynamic) {
         Object.seal(value);
       }
