@@ -2,9 +2,10 @@
 
 ## Project
 
-- Marker support
-- Functionality support
+- Readme
   - Getter `dynamic()`
+  - Options
+- Restructure marker to value order in code
 
 ## AMF General
 
