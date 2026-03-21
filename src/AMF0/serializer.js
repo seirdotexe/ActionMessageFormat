@@ -11,17 +11,17 @@ import Reference from './reference.js';
 /** @module AMF0/Serializer */
 export default class Serializer {
   /**
-   * The DynBuffer instance containing AMF0 bytes for this instance
-   * @private
-   * @type {DynBuffer}
-   */
-  #dynbuf;
-  /**
    * The AMF class alias holder
    * @private
    * @type {ClassAlias}
    */
   #classAlias;
+  /**
+   * The DynBuffer instance containing AMF0 bytes for this instance
+   * @private
+   * @type {DynBuffer}
+   */
+  #dynbuf;
   /**
    * Initialize the AMF0 reference holder
    * @private
@@ -46,8 +46,8 @@ export default class Serializer {
    * @param {ClassAlias} classAlias - The class alias internally coming from the AMF entrypoint class
    */
   constructor(classAlias) {
-    this.#dynbuf = new DynBuffer();
     this.#classAlias = classAlias;
+    this.#dynbuf = new DynBuffer();
     this.#reference = new Reference();
   }
 
@@ -245,7 +245,7 @@ export default class Serializer {
 
     this.#dynbuf.writeByte(Markers.AMF0.DATE);
     this.#dynbuf.writeDouble(value.getTime());
-    this.#dynbuf.writeShort(value.getTimezoneOffset()); //! Undocumented behavior - The spec clearly says '0x0000' should be written, but this isn't true. It does write the timezone offset
+    this.#dynbuf.writeShort(value.getTimezoneOffset()); //! Undocumented behavior - The spec clearly says '0x0000' should be written, but this isn't true. It does actually write the timezone offset
   }
 
   /**
@@ -261,13 +261,13 @@ export default class Serializer {
       this.#serializeTypedObject(value, aliasName);
     } else if (!isNativeObject(constructor)) { // This is an unregistered typed object (AVM calls this an anonymous object), so we serialize it as an object
       this.#serializeObject(value);
-    } else { // An unknown type was found
+    } else { // An unknown (base) type was found
       if (constructor.name === 'Map') {
         this.#options.castMapSet ? this.#serializeObject(Object.fromEntries(value)) : this.#serializeMap(value);
       } else if (constructor.name === 'Set') {
         this.#options.castMapSet ? this.#serializeArray([...value]) : this.#serializeSet(value);
       } else {
-        this.#serializeUnsupported(); // We do the right thing and write the unsupported marker
+        this.#serializeUnsupported(); //! We do the right thing and write the unsupported marker
       }
     }
   }

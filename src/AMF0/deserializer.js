@@ -10,17 +10,17 @@ import Reference from './reference.js';
 /** @module AMF0/Deserializer */
 export default class Deserializer {
   /**
-   * The DynBuffer instance containing AMF0 bytes for this instance
-   * @private
-   * @type {DynBuffer}
-   */
-  #dynbuf;
-  /**
    * The AMF class alias holder
    * @private
    * @type {ClassAlias}
    */
   #classAlias;
+  /**
+   * The DynBuffer instance containing AMF0 bytes for this instance
+   * @private
+   * @type {DynBuffer}
+   */
+  #dynbuf;
   /**
    * Initialize the AMF0 reference holder
    * @private
@@ -39,8 +39,8 @@ export default class Deserializer {
    * @param {ClassAlias} classAlias - The class alias internally coming from the AMF entrypoint class
    */
   constructor(classAlias) {
-    this.#dynbuf = new DynBuffer();
     this.#classAlias = classAlias;
+    this.#dynbuf = new DynBuffer();
     this.#reference = new Reference();
   }
 
@@ -58,10 +58,10 @@ export default class Deserializer {
    * @returns {any} The deserialized object
    */
   deserialize(buffer) {
-    // Copy over the buffer to the (empty!) DynBuffer instance when passed
+    // Copy over the buffer to the (empty) DynBuffer instance when passed
     if (buffer && (this.#dynbuf.length === 0)) {
       this.#dynbuf.writeBytes(buffer);
-      this.#dynbuf.position = 0; // Reset so we can start reading data
+      this.#dynbuf.position = 0; // Reset so we can start reading AMF data
     }
 
     const marker = this.#dynbuf.readByte();
@@ -153,7 +153,6 @@ export default class Deserializer {
    */
   #deserializeArray() {
     const value = [];
-
     value.length = this.#dynbuf.readUnsignedInt();
 
     this.#reference.set(value);
@@ -178,7 +177,6 @@ export default class Deserializer {
   #deserializeDate() {
     const time = this.#dynbuf.readDouble();
     const timezoneOffset = this.#dynbuf.readShort(); // Todo - Perhaps we can utilize this, the option is there: dateOffset
-
     const value = new Date(time);
 
     this.#reference.set(value);

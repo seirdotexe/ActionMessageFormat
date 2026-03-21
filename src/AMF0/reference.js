@@ -49,9 +49,6 @@ export default class Reference {
 
     if (!cache.referenced) this.set(value);
 
-    // It's simple, 'cache.referenced' will be false when the object is first seen; it's our first time seeing the object, so it won't be referenced
-    // If the same object is seen again, then 'cache.referenced' will be true, and then it'll be taken care of in the application
-
     return cache;
   }
 }

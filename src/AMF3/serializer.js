@@ -11,17 +11,17 @@ import Reference from './reference.js';
 /** @module AMF3/Serializer */
 export default class Serializer {
   /**
-   * The DynBuffer instance containing AMF3 bytes for this instance
-   * @private
-   * @type {DynBuffer}
-   */
-  #dynbuf;
-  /**
    * The AMF class alias holder
    * @private
    * @type {ClassAlias}
    */
   #classAlias;
+  /**
+   * The DynBuffer instance containing AMF3 bytes for this instance
+   * @private
+   * @type {DynBuffer}
+   */
+  #dynbuf;
   /**
    * Initialize the AMF3 reference holder
    * @private
@@ -40,8 +40,8 @@ export default class Serializer {
    * @param {ClassAlias} classAlias - The class alias internally coming from the AMF entrypoint class
    */
   constructor(classAlias) {
-    this.#dynbuf = new DynBuffer();
     this.#classAlias = classAlias;
+    this.#dynbuf = new DynBuffer();
     this.#reference = new Reference();
   }
 
@@ -145,7 +145,7 @@ export default class Serializer {
   #serializeInteger(value) {
     if ((value << 3 >> 3) === value) { // Does the value fit into 29 bits?
       this.#dynbuf.writeByte(Markers.AMF3.INTEGER);
-      this.#writeUint29(value & 0x1FFFFFFF); // Signed conversion
+      this.#writeUint29(value & 0x1FFFFFFF); // Signed conversion to int29
     } else {
       this.#dynbuf.writeByte(Markers.AMF3.DOUBLE);
       this.#dynbuf.writeDouble(value);
@@ -230,14 +230,13 @@ export default class Serializer {
       value.writeExternal(this.#dynbuf);
     } else if (traits.dynamic) {
       for (const key in value) {
-        console.log(key, traits.keys.includes(key));
         if (traits.keys.includes(key)) continue; // This is necessary to prevent writing sealed member names a second time for registered classes
 
         this.#serializeString(key, false);
         this.serialize(value[key]);
       }
 
-      this.#writeUint29(1); // Dynamic object terminator that'll get read as an empty string
+      this.#writeUint29(1); // Dynamic object empty string terminator
     }
   }
 
