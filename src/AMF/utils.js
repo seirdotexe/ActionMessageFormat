@@ -18,10 +18,8 @@ export const determineArray = (arr) => {
   const isAssociative = Object.keys(arr).some(key => isNaN(Number(key)));
   // A sparse array is an array with holes. Sparse arrays can be detected by checking if the length property of the array is greater than the number of elements in the array
   const isSparse = (arr.length > arr.filter(() => true).length);
-  // A dense array, like [1,2,3], the most casual array, can be determined with a simple length check, and is strict
+  // A (strictly) dense array, like [1,2,3], the most casual array, can be determined with a simple length check
   const isDense = (arr.length === Object.values(arr).length);
-
-  // Todo - Associative array with dense elements detection
 
   return { associative: isAssociative, sparse: isSparse, dense: isDense };
 }
