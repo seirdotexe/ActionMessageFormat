@@ -4,24 +4,28 @@
 
 - Readme
   - Getter `dynamic()`
-  - Options
-- Restructure marker to value order in code
+  - Options explanation and behavior
 
 ## AMF General
 
+- Restructure marker to value order in code `Serializer` and `Deserializer`
 - XML functionality
-- Avoid filter to check for sparse arrays in `determineArray` while maintaining functionality
-- Remoting functionality; strict array type. packet, header, and message class. testing AS3 NetConnection
+- Avoid `filter()` to check for sparse arrays in `determineArray` while maintaining functionality
 - Tests, explicity test AMF3 trait reference
+
+## Remoting
+
+- Remoting functionality; strict array type. packet, header, and message class. testing AS3 NetConnection
+- Flex remoting?
 
 ## AMF0
 
-- AVM+ marker
+- AVM+ marker to switch to AMF3
 - Utilize `timezoneOffset` in Date based on option `dateOffset`
 
 ## AMF3
 
 - Support for vector-object-type
 - Support for Set
-- What about WeakMap?
-- Examine Decorators for Externalizable
+- What about WeakMap? Dictionary weak-keys?
+- Examine Decorators for Externalizable, is it viable?
