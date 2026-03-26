@@ -246,39 +246,7 @@ export default class Serializer {
    * @param {any[]} value - The array to serialize
    */
   #serializeArray(value) {
-    this.#dynbuf.writeByte(Markers.AMF3.ARRAY);
-
-    const cache = this.#reference.has(value, 'objects');
-    if (cache.referenced) return this.#writeUint29(cache.index << 1);
-
-    const arrInfo = determineArray(value);
-
-    this.#writeUint29((value.length << 1) | 1); // Only the dense count of the array is written as length
-
-    if (arrInfo.sparse || arrInfo.dense) {
-      this.#writeUint29(1); // Todo - Unknown
-
-      for (let i = 0; i < value.length; i++) {
-        this.serialize(value[i]);
-      }
-    }
-
-    if (arrInfo.associative) {
-      for (const key in value) {
-        if (isNaN(key)) {
-          this.#serializeString(key, false);
-          this.serialize(value[key]);
-        }
-      }
-
-      this.#writeUint29(1); // Associative array empty string terminator
-
-      if (value.length > 0) {
-        for (let i = 0; i < value.length; i++) {
-          this.serialize(value[i]);
-        }
-      }
-    }
+    // Todo
   }
 
   /**

@@ -222,4 +222,13 @@ export default class Deserializer {
       return value;
     }
   }
+
+  /**
+   * Deserializes an array
+   * @private
+   * @returns {any[]} The deserialized array
+   */
+  #deserializeArray() {
+    // Todo
+  }
 }
