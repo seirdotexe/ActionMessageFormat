@@ -286,6 +286,18 @@ export default class Serializer {
    * @param {'Int32Array'|'Uint32Array'|'Float64Array'} type - The type of the Vector to serialize
    */
   #serializeTypedArray(value, type) {
+    this.#dynbuf.writeByte(type === 'Int32Array' ? Markers.AMF3.VECTOR_INT : type === 'Uint32Array' ? Markers.AMF3.VECTOR_UINT : Markers.AMF3.VECTOR_DOUBLE);
+
+    const cache = this.#reference.has(value, 'objects');
+    if (cache.referenced) return this.#writeUint29(cache.index << 1);
+
+    this.#writeUint29((value.length << 1) | 1);
+    this.#dynbuf.writeBoolean(!Object.isExtensible(value));
+
+    for (let i = 0; i < value.length; i++) {
+      type === 'Int32Array' ? this.#dynbuf.writeInt(value[i]) : type === 'Uint32Array' ? this.#dynbuf.writeUnsignedInt(value[i]) : this.#dynbuf.writeDouble(value[i]);
+    }
+
     // Todo - Support for vector-object-type
   }
 
