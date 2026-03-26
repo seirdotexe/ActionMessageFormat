@@ -16,7 +16,7 @@ const myPropWriter = (obj) => {
 AMF.registerDynamicPropertyWriter(myPropWriter, 0);
 
 const value = { username: 'User', id: 5 };
-const serialized = AMF.serialize(value, 0);
+const serialized = AMF.serialize(value, 0); // 03 00 08 75 73 65 72 6e 61 6d 65 02 00 09 55 73 65 72 20 23 35 30 30 00 02 69 64 00 40 7f 40 00 00 00 00 00 00 00 09
 const deserialized = AMF.deserialize(serialized, 0);
 
 console.log(deserialized); // { username: 'User #500', id: 500 }
@@ -34,7 +34,7 @@ class Character {
 AMF.classAlias.registerClassAlias('src.Character', Character);
 
 const value = new Character('Seir', 100);
-const serialized = AMF.serialize(value, 0);
+const serialized = AMF.serialize(value, 0); // 10 00 0d 73 72 63 2e 43 68 61 72 61 63 74 65 72 00 08 75 73 65 72 6e 61 6d 65 02 00 04 53 65 69 72 00 05 6c 65 76 65 6c 00 40 59 00 00 00 00 00 00 00 00 09
 const deserialized = AMF.deserialize(serialized, 0);
 
 console.log(deserialized); // Character { username: 'Seir', level: 100 }
