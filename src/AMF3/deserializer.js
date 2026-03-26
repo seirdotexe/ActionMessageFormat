@@ -97,6 +97,7 @@ export default class Deserializer {
       case Markers.AMF3.DATE: return this.#deserializeDate();
       case Markers.AMF3.OBJECT: return this.#deserializeObject();
       case Markers.AMF3.ARRAY: return this.#deserializeArray();
+      default: return this.#deserializeUnidentifiedObject(marker);
     }
   }
 
@@ -230,5 +231,17 @@ export default class Deserializer {
    */
   #deserializeArray() {
     // Todo
+  }
+
+  /**
+   * Catch an unidentifiable object
+   * @private
+   * @param {number} marker - The unknown AMF3 marker
+   * @throws {ReferenceError} If an unknown AMF3 marker has been found
+   */
+  #deserializeUnidentifiedObject(marker) {
+    if (this.#options.throwErrorUnsupported) {
+      throw new ReferenceError(`Unknown or unsupported AMF3 marker found: '${marker}'.`);
+    }
   }
 }
