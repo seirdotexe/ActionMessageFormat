@@ -3,19 +3,23 @@
 ## Project
 
 - Readme
-  - Getter `dynamic()`
-  - Options explanation and behavior
+  - Getter `dynamic()` on class
+  - Options explanation and its behavior
 
 ## AMF General
 
 - Restructure marker to value order in code `Serializer` and `Deserializer`
 - XML functionality
-- Avoid `filter()` to check for sparse arrays in `determineArray` while maintaining functionality
-- Tests, explicity test AMF3 trait reference
+- Avoid `filter()` to check for sparse arrays in `determineArray`
+- Tests
+  - Explicity test AMF3 trait reference
+  - Testing AS3 NetConnection
 
 ## Remoting
 
-- Remoting functionality; strict array type. packet, header, and message class. testing AS3 NetConnection
+- Remoting functionality
+  - Strict array type
+  - Packet, header, and message class
 - Flex remoting?
 
 ## AMF0
