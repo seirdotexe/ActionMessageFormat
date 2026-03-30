@@ -39,20 +39,29 @@ export default class Reference {
   }
 
   /**
-   * Returns the referenced 'seen' strings, used for internal use
+   * Returns the referenced 'seen' strings
    * @returns {string[]}
    */
   get strings() { return this.#strings; }
   /**
-   * Returns the referenced 'seen' objects, used for internal use
+   * Returns the referenced 'seen' objects
    * @returns {object[]}
    */
   get objects() { return this.#objects; }
   /**
-   * Returns the referenced 'seen' traits, used for internal use
+   * Returns the referenced 'seen' traits
    * @returns {string[]}
    */
   get traits() { return this.#traits; }
+
+  /**
+   * Resets the references
+   */
+  reset() {
+    this.#strings = [];
+    this.#objects = [];
+    this.#traits = [];
+  }
 
   /**
    * Retrieves a referenced value by its index
