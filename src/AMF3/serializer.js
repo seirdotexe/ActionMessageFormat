@@ -1,11 +1,11 @@
 import DynBuffer from '@seirdotexe/dynbuffer';
-import Markers from '../AMF/markers.js';
+import Markers from '../AMF/static/markers.js';
 import { determineArray, isNativeObject } from '../AMF/utils.js';
 import Reference from './reference.js';
 
 /**
  * @typedef {import('../AMF/alias.js').default} ClassAlias
- * @typedef {import('../AMF/options.js').AMFSerializerOptions} AMFOptions
+ * @typedef {import('../AMF/static/options.js').AMFSerializerOptions} AMFOptions
  */
 
 /** @module AMF3/Serializer */

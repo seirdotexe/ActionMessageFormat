@@ -6,7 +6,7 @@ import { default as Serializer3 } from './AMF3/serializer.js';
 import { default as Deserializer0 } from './AMF0/deserializer.js';
 import { default as Deserializer3 } from './AMF3/deserializer.js';
 
-import { DeserializerOptions, SerializerOptions } from './AMF/options.js';
+import { DeserializerOptions, SerializerOptions } from './AMF/static/options.js';
 
 /**
  * @author SeirDotExe

@@ -1,5 +1,4 @@
 import fastJson from 'fast-json-stringify';
-import traitSchema from '../AMF/traitschema.json' with { type: 'json' };
 
 /** @module AMF3/Reference */
 export default class Reference {
@@ -35,7 +34,30 @@ export default class Reference {
     this.#strings = [];
     this.#objects = [];
     this.#traits = [];
-    this.#stringify = fastJson(traitSchema);
+    this.#stringify = fastJson({
+      title: 'AMF3 traits schema',
+      type: 'object',
+      properties: {
+        className: {
+          type: 'string'
+        },
+        externalizable: {
+          type: 'boolean'
+        },
+        dynamic: {
+          type: 'boolean'
+        },
+        keys: {
+          type: 'array',
+          items: {
+            type: 'string'
+          }
+        },
+        count: {
+          type: 'integer'
+        }
+      }
+    });
   }
 
   /**

@@ -1,10 +1,10 @@
 import DynBuffer from '@seirdotexe/dynbuffer';
-import Markers from '../AMF/markers.js';
+import Markers from '../AMF/static/markers.js';
 import Reference from './reference.js';
 
 /**
  * @typedef {import('../AMF/alias.js').default} ClassAlias
- * @typedef {import('../AMF/options.js').AMFDeserializerOptions} AMFOptions
+ * @typedef {import('../AMF/static/options.js').AMFDeserializerOptions} AMFOptions
  */
 
 /** @module AMF0/Deserializer */

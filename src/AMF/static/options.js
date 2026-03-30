@@ -1,5 +1,5 @@
 /**
- * @module AMF/Options
+ * @module AMF/Static/Options
  *
  * @typedef {object} AMFSerializerOptions
  * @property {boolean} throwErrorUnsupported - Whether to throw an error upon encountering an unknown marker while serializing or not. Default to **true**
