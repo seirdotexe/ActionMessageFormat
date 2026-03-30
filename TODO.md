@@ -17,6 +17,7 @@
 
 ## Remoting
 
+- AVM+ marker to switch to AMF3
 - Remoting functionality
   - Strict array type
   - Packet, header, and message class
@@ -24,7 +25,6 @@
 
 ## AMF0
 
-- AVM+ marker to switch to AMF3
 - Utilize `timezoneOffset` in Date based on option `dateOffset`
 
 ## AMF3
