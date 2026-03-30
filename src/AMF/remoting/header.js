@@ -1,0 +1,26 @@
+/** @module AMF/Remoting/Header */
+export default class Header {
+  /**
+   * Creates a new remoting Header
+   * @param {string} name - Identifies the header and the ActionScript object data associated with it
+   * @param {boolean} [mustUnderstand=false] - Indicates that the server must understand and process this header before it handles any of the following headers or messages
+   * @param {any} data - The provided header data
+   */
+  constructor(name, mustUnderstand = false, data) {
+    /**
+     * Identifies the header and the ActionScript object data associated with it
+     * @type {string}
+     */
+    this.name = name;
+    /**
+     * Indicates that the server must understand and process this header before it handles any of the following headers or messages
+     * @type {boolean}
+     */
+    this.mustUnderstand = mustUnderstand;
+    /**
+     * The provided header data
+     * @type {any}
+     */
+    this.data = data;
+  }
+}
