@@ -13,14 +13,6 @@
 - Avoid `filter()` to check for sparse arrays in `determineArray`
 - Tests
   - Explicity test AMF3 trait reference
-  - Testing AS3 NetConnection
-
-## Remoting
-
-- Remoting functionality
-  - Strict array type
-  - Packet, header, and message class
-- Flex remoting?
 
 ## AMF0
 
