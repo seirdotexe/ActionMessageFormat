@@ -40,12 +40,23 @@ export default class ClassAlias {
   }
 
   /**
-   * Register the class of an object
+   * Registers the class of an object
    * @param {string} aliasName - The alias to register the class under
    * @param {object} classObj - The class to preserve and to associate with the alias
    */
   registerClassAlias(aliasName, classObj) {
     this.#classes.set(classObj, aliasName);
     this.#aliases.set(aliasName, classObj);
+  }
+
+  /**
+   * Unregisters the class of an object
+   * @param {string} aliasName - The alias belonging to the class to unregister
+   */
+  unregisterClassAlias(aliasName) {
+    const classObj = this.getClassByAlias(aliasName);
+
+    this.#classes.delete(classObj);
+    this.#aliases.delete(aliasName);
   }
 }
