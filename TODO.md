@@ -10,7 +10,6 @@
 
 - Restructure marker to value order in code `Serializer` and `Deserializer`
 - XML functionality
-- Avoid `filter()` to check for sparse arrays in `determineArray`
 - Tests
   - Explicity test AMF3 trait reference
   - Testing AS3 NetConnection
