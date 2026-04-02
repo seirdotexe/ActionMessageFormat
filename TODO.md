@@ -4,6 +4,7 @@
 
 - Readme
   - Getter `dynamic()` on class
+  - Vector object property 'VectorObject' using `Object.defineProperty` on array which value needs to be the class alias
   - Options explanation and its behavior
 
 ## AMF General
@@ -28,7 +29,6 @@
 
 ## AMF3
 
-- Support for vector-object-type
 - Support for Set
 - What about WeakMap? Dictionary weak-keys?
 - Examine Decorators for Externalizable, is it viable?

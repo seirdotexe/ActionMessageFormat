@@ -246,6 +246,10 @@ export default class Serializer {
    * @param {any[]} value - The array to serialize
    */
   #serializeArray(value) {
+    if (Object.getOwnPropertyDescriptor(value, 'VectorObject')?.value) {
+      return this.#serializeTypedArray(value, 'VectorObject');
+    }
+
     // Todo
   }
 
@@ -282,11 +286,15 @@ export default class Serializer {
   /**
    * Serializes a Vector (typed array)
    * @private
-   * @param {Int32Array|Uint32Array|Float64Array} value - The Vector to serialize
-   * @param {'Int32Array'|'Uint32Array'|'Float64Array'} type - The type of the Vector to serialize
+   * @param {Int32Array|Uint32Array|Float64Array|any[]} value - The Vector to serialize
+   * @param {'Int32Array'|'Uint32Array'|'Float64Array'|'VectorObject'} type - The type of the Vector to serialize
    */
   #serializeTypedArray(value, type) {
-    this.#dynbuf.writeByte(type === 'Int32Array' ? Markers.AMF3.VECTOR_INT : type === 'Uint32Array' ? Markers.AMF3.VECTOR_UINT : Markers.AMF3.VECTOR_DOUBLE);
+    this.#dynbuf.writeByte(
+      type === 'Int32Array' ? Markers.AMF3.VECTOR_INT :
+        type === 'Uint32Array' ? Markers.AMF3.VECTOR_UINT :
+          type === 'Float64Array' ? Markers.AMF3.VECTOR_DOUBLE : Markers.AMF3.VECTOR_OBJECT
+    );
 
     const cache = this.#reference.has(value, 'objects');
     if (cache.referenced) return this.#writeUint29(cache.index << 1);
@@ -294,11 +302,23 @@ export default class Serializer {
     this.#writeUint29((value.length << 1) | 1);
     this.#dynbuf.writeBoolean(!Object.isExtensible(value));
 
-    for (let i = 0; i < value.length; i++) {
-      type === 'Int32Array' ? this.#dynbuf.writeInt(value[i]) : type === 'Uint32Array' ? this.#dynbuf.writeUnsignedInt(value[i]) : this.#dynbuf.writeDouble(value[i]);
+    if (type === 'VectorObject') {
+      const aliasName = Object.getOwnPropertyDescriptor(value, 'VectorObject').value;
+      const classObj = this.#classAlias.getClassByAlias(aliasName);
+
+      if (classObj) {
+        this.#serializeString(aliasName, false);
+      } else {
+        this.#writeUint29(1);
+      }
     }
 
-    // Todo - Support for vector-object-type
+    for (let i = 0; i < value.length; i++) {
+      type === 'Int32Array' ? this.#dynbuf.writeInt(value[i]) :
+        type === 'Uint32Array' ? this.#dynbuf.writeUnsignedInt(value[i]) :
+          type === 'Float64Array' ? this.#dynbuf.writeDouble(value[i]) :
+            this.serialize(value[i]);
+    }
   }
 
   /**
