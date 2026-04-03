@@ -311,8 +311,7 @@ export default class Serializer {
     this.#dynbuf.writeByte(
       type === 'Int32Array' ? Markers.AMF3.VECTOR_INT :
         type === 'Uint32Array' ? Markers.AMF3.VECTOR_UINT :
-          type === 'Float64Array' ? Markers.AMF3.VECTOR_DOUBLE : Markers.AMF3.VECTOR_OBJECT
-    );
+          type === 'Float64Array' ? Markers.AMF3.VECTOR_DOUBLE : Markers.AMF3.VECTOR_OBJECT);
 
     const cache = this.#reference.has(value, 'objects');
     if (cache.referenced) return this.#writeUint29(cache.index << 1);
@@ -324,11 +323,7 @@ export default class Serializer {
       const aliasName = Object.getOwnPropertyDescriptor(value, 'VectorObject').value;
       const classObj = this.#classAlias.getClassByAlias(aliasName);
 
-      if (classObj) {
-        this.#serializeString(aliasName, false);
-      } else {
-        this.#writeUint29(1);
-      }
+      classObj ? this.#serializeString(aliasName, false) : this.#writeUint29(1);
     }
 
     for (let i = 0; i < value.length; i++) {
