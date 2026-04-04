@@ -101,6 +101,12 @@ const serialized = AMF.serialize(value); // 10 03 00 1b 73 72 63 2e 43 68 61 72 
 const deserialized = AMF.deserialize(serialized); // [ Character { username: 'Seir' } ]
 ```
 
+**AVM+ extension marker**
+```js
+const serialized = Buffer.concat([new Uint8Array([0x11]), AMF.serialize({ id: 1 }, 3)]); // 11 (0a 0b 01 05 69 64 04 01 01)
+const deserialized = AMF.deserialize(serialized, 0); // { id: 1 }
+```
+
 # Reference system
 
 Both AMF0 (only objects) and AMF3 (objects, strings, traits) utilize a reference check to optimize serializing and deserializing cycles. It's simple, 'cache.referenced' will be false when the object is first seen, so it won't be referenced. If the same object is seen again, then 'cache.referenced' will be true, and it'll get taken care of in the application. For AMF3 traits, this is a little different. Traits don't have to be referenceable in an object sense of way, just equal. Hence the use of a JSON stringify module.

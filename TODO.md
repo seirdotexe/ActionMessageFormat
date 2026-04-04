@@ -17,7 +17,6 @@
 
 ## Remoting
 
-- AVM+ marker to switch to AMF3
 - Remoting functionality
   - Strict array type
   - Packet, header, and message class

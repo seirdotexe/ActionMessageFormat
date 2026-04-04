@@ -36,7 +36,7 @@ export class AMF {
    * @type {{ 0: Deserializer0, 3: Deserializer3}}
    */
   static #deserializers = {
-    0: new Deserializer0(this.classAlias),
+    0: new Deserializer0(this.classAlias, AMF.deserialize.bind(AMF)),
     3: new Deserializer3(this.classAlias)
   };
 

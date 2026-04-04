@@ -16,6 +16,12 @@ export default class Deserializer {
    */
   #classAlias;
   /**
+   * The 'deserialize' function holder
+   * @private
+   * @type {Function}
+   */
+  #AMF_Deserialize;
+  /**
    * The DynBuffer instance containing AMF0 bytes for this instance
    * @private
    * @type {DynBuffer}
@@ -37,9 +43,11 @@ export default class Deserializer {
   /**
    * Creates a new AMF0 deserializer
    * @param {ClassAlias} classAlias - The class alias internally coming from the AMF entrypoint class
+   * @param {Function} AMF_Deserialize - The 'deserialize' function coming from the AMF entrypoint class
    */
-  constructor(classAlias) {
+  constructor(classAlias, AMF_Deserialize) {
     this.#classAlias = classAlias;
+    this.#AMF_Deserialize = AMF_Deserialize;
     this.#dynbuf = new DynBuffer();
     this.#reference = new Reference();
   }
@@ -80,6 +88,7 @@ export default class Deserializer {
       case Markers.AMF0.TYPED_OBJECT: return this.#deserializeTypedObject();
       case Markers.AMF0.MAP: return this.#deserializeMap();
       case Markers.AMF0.SET: return this.#deserializeSet();
+      case Markers.AMF0.AVMPLUS: return this.#deserializeAVMPlus();
       default: return this.#deserializeUnidentifiedObject(marker);
     }
   }
@@ -236,6 +245,16 @@ export default class Deserializer {
     }
 
     return value;
+  }
+
+  /**
+   * Deserializes an AVMPlus marker to switch to AMF3
+   * @private
+   */
+  #deserializeAVMPlus() {
+    const AMF3Data = this.#dynbuf.stream.subarray(this.#dynbuf.position, this.#dynbuf.bytesAvailable + 1);
+
+    return this.#AMF_Deserialize(AMF3Data);
   }
 
   /**
