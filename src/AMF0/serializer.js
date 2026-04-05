@@ -27,19 +27,19 @@ export default class Serializer {
    */
   #dynbuf;
   /**
-   * Initialize the AMF0 reference holder
+   * The AMF0 reference holder
    * @private
    * @type {Reference}
    */
   #reference;
   /**
-   * Initialize the Dynamic Property Writer function
+   * The Dynamic Property Writer function holder
    * @private
    * @type {Function}
    */
   #dynamicPropertyWriter;
   /**
-   * Initialize the AMF options object holder
+   * The AMF options object holder
    * @private
    * @type {AMFOptions}
    */

@@ -22,13 +22,13 @@ export default class Deserializer {
    */
   #dynbuf;
   /**
-   * Initialize the AMF0 reference holder
+   * The AMF0 reference holder
    * @private
    * @type {Reference}
    */
   #reference;
   /**
-   * Initialize the AMF options object holder
+   * The AMF options object holder
    * @private
    * @type {AMFOptions}
    */
