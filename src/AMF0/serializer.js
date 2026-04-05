@@ -6,6 +6,10 @@ import Reference from './reference.js';
 /**
  * @typedef {import('../AMF/alias.js').default} ClassAlias
  * @typedef {import('../AMF/static/options.js').AMFSerializerOptions} AMFOptions
+ *
+ * @typedef {import('../AMF/remoting/header.js').default} Header
+ * @typedef {import('../AMF/remoting/message.js').default} Message
+ * @typedef {import('../AMF/remoting/packet.js').default} Packet
  */
 
 /** @module AMF0/Serializer */
@@ -102,6 +106,17 @@ export default class Serializer {
         default: this.#serializeUnidentifiedObject(value);
       }
     }
+
+    return this;
+  }
+
+  /**
+   * Serializes a packet into AMF binary data
+   * @param {Packet} packet - The AMF packet to serialize
+   * @returns {Serializer} Returns the AMF serializer to perform a swift flush in AMF entrypoint class
+   */
+  serializePacket(packet) {
+    this.#dynbuf.writeShort(packet.version);
 
     return this;
   }

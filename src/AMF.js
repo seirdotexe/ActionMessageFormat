@@ -9,6 +9,10 @@ import { default as Deserializer3 } from './AMF3/deserializer.js';
 import { DeserializerOptions, SerializerOptions } from './AMF/static/options.js';
 
 /**
+ * @typedef {import('./AMF/remoting/packet.js').default} Packet
+ */
+
+/**
  * @author SeirDotExe
  * @license BSD-3-Clause
  */
@@ -80,5 +84,18 @@ export class AMF {
     this.#deserializers[version].options = options;
 
     return this.#deserializers[version].deserialize(buffer);
+  }
+
+  /**
+   * Serializes a packet into AMF binary data
+   * @static
+   * @param {Packet} packet - The AMF packet to serialize
+   * @param {DeserializerOptions?} options - The options object which has certain settings to utilize different AMF behavior. **Depends on 'packet.version'**!
+   * @returns {Buffer} Returns the AMF packet data in a buffer
+   */
+  static serializePacket(packet, options = SerializerOptions) {
+    this.#serializers[packet.version].options = options;
+
+    return this.#serializers[0].serializePacket(packet).flush();
   }
 }

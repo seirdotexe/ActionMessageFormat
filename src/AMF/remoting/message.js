@@ -4,7 +4,7 @@ export default class Message {
    * Creates a new remoting Message
    * @param {string} targetURI - The operation to invoke
    * @param {string} responseURI - The unique operation name to match the response to the client invoke
-   * @param {any} data - The provided message data
+   * @param {any[]} data - The provided message data
    */
   constructor(targetURI, responseURI, data) {
     /**
@@ -19,7 +19,7 @@ export default class Message {
     this.responseURI = responseURI;
     /**
      * The provided message data
-     * @type {any}
+     * @type {any[]}
      */
     this.data = data;
   }
