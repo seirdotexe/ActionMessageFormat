@@ -181,12 +181,12 @@ export default class Serializer {
    * @param {object} value - The object to serialize
    */
   #serializeObject(value) {
-    const cache = this.#reference.has(value);
-    if (cache.referenced) return this.#serializeReference(cache.index);
-
     if (this.#dynamicPropertyWriter) {
       this.#dynamicPropertyWriter(value);
     }
+
+    const cache = this.#reference.has(value);
+    if (cache.referenced) return this.#serializeReference(cache.index);
 
     this.#dynbuf.writeByte(Markers.AMF0.OBJECT);
 
