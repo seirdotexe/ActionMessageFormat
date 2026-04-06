@@ -12,6 +12,7 @@
 - Restructure marker to value order in code `Serializer` and `Deserializer`
 - XML functionality
 - Tests
+  - Dynamic property writer reference test
   - Explicity test AMF3 trait reference
   - Testing AS3 NetConnection
 
