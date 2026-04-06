@@ -28,8 +28,19 @@ export default class Packet {
     this.#messages = new Set();
   }
 
+  /**
+   * Overwrite for inspecting on the Packet class
+   * @param {number} depth - The 'depth' param of util.inspect
+   * @param {Object} options - The util.InspectOptionsStylized options
+   * @param {Function} inspect - The util.inspect function
+   * @returns {string} A pretty printed representation of the Packet class
+   */
   [Symbol.for('nodejs.util.inspect.custom')](depth, options, inspect) {
-    // Todo
+    return `${options.stylize('Packet', 'special')} {
+        \r  version: ${options.stylize(this.version, 'number')},
+        \r  headers: ${inspect(this.#headers, { ...options, compact: true })},
+        \r  messages: ${inspect(this.#messages, { ...options, compact: true })}
+      \r}`;
   }
 
   /**
@@ -93,10 +104,9 @@ export default class Packet {
    * @param {...any} data - The provided message data
    */
   addMessage(targetURI, responseURI, ...data) {
-    const normalizedData = (data.length === 1) && Array.isArray(data[0]) ? data[0] : data;
+    const message = new Message(targetURI, responseURI, data);
 
-    console.log(data);
-    console.log(normalizedData);
+    this.#messages.add(message);
   }
 
   /**

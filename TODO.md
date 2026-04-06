@@ -19,7 +19,6 @@
 
 - Remoting functionality
   - Strict array type
-  - Packet, header, and message class
 - Flex remoting?
 
 ## AMF0
