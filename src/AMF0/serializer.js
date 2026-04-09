@@ -116,7 +116,35 @@ export default class Serializer {
    * @returns {Serializer} Returns the AMF serializer to perform a swift flush in AMF entrypoint class
    */
   serializePacket(packet) {
+    //! Perhaps separate to each AMF class?
+    // Todo - Reference reset, where?
+    // Todo - AVM+
     this.#dynbuf.writeShort(packet.version);
+
+    this.#dynbuf.writeShort(packet.headerCount);
+    for (const header of packet.headers) {
+      let positionBeforeAMF = 0, positionAfterAMF = 0;
+
+      this.#dynbuf.writeUTF(header.name);
+      this.#dynbuf.writeBoolean(header.mustUnderstand);
+
+      positionBeforeAMF = this.#dynbuf.position; this.#dynbuf.writeInt(-1);
+      this.serialize(header.data); positionAfterAMF = this.#dynbuf.position;
+      this.#dynbuf.position = positionBeforeAMF; this.#dynbuf.writeInt(positionAfterAMF - positionBeforeAMF - 4);
+      this.#dynbuf.position = positionAfterAMF;
+    }
+
+    this.#dynbuf.writeShort(packet.messageCount);
+    for (const message of packet.messages) {
+      let positionBeforeAMF = 0, positionAfterAMF = 0;
+
+      this.#dynbuf.writeUTF(message.targetURI);
+      this.#dynbuf.writeUTF(message.responseURI);
+      positionBeforeAMF = this.#dynbuf.position; this.#dynbuf.writeInt(-1);
+      this.#serializeStrictArray(message.data); positionAfterAMF = this.#dynbuf.position;
+      this.#dynbuf.position = positionBeforeAMF; this.#dynbuf.writeInt(positionAfterAMF - positionBeforeAMF - 4);
+      this.#dynbuf.position = positionAfterAMF;
+    }
 
     return this;
   }
@@ -261,6 +289,23 @@ export default class Serializer {
     this.#dynbuf.writeByte(Markers.AMF0.DATE);
     this.#dynbuf.writeDouble(value.getTime());
     this.#dynbuf.writeShort(value.getTimezoneOffset()); //! Undocumented behavior - The spec clearly says '0x0000' should be written, but this isn't true. It does actually write the timezone offset
+  }
+
+  /**
+   * Serializes a strict array
+   * @private
+   * @param {any[]} value - The strict array to serialize
+   */
+  #serializeStrictArray(value) {
+    const cache = this.#reference.has(value);
+    if (cache.referenced) return this.#serializeReference(cache.index);
+
+    this.#dynbuf.writeByte(Markers.AMF0.STRICT_ARRAY);
+    this.#dynbuf.writeUnsignedInt(value.length);
+
+    for (let i = 0; i < value.length; i++) {
+      this.serialize(value[i]);
+    }
   }
 
   /**
