@@ -52,6 +52,13 @@ export default class Serializer {
   #options;
 
   /**
+   * Initialize the list of types to serialize with AMF0 when facing possible AVM+ challenges
+   * @static
+   * @type {string[]}
+   */
+  static #NATIVE_TYPES = ['number', 'boolean', 'string'];
+
+  /**
    * Creates a new AMF0 serializer
    * @param {ClassAlias} classAlias - The class alias internally coming from the AMF entrypoint class
    * @param {Function} AMF_Serialize - The 'serialize' function coming from the AMF entrypoint class
@@ -124,34 +131,40 @@ export default class Serializer {
    * @returns {Serializer} Returns the AMF serializer to perform a swift flush in AMF entrypoint class
    */
   serializePacket(packet) {
-    //! Perhaps separate to each AMF class?
-    // Todo - Reference reset, where?
-    // Todo - AVM+
+    let positionBeforeAMF = 0, positionAfterAMF = 0;
+
     this.#dynbuf.writeShort(packet.version);
 
     this.#dynbuf.writeShort(packet.headerCount);
     for (const header of packet.headers) {
-      let positionBeforeAMF = 0, positionAfterAMF = 0;
-
+      // Write 'name' and 'mustUnderstand'
       this.#dynbuf.writeUTF(header.name);
       this.#dynbuf.writeBoolean(header.mustUnderstand);
-
+      // Store the position before writing AMF data and temporarily write -1 for length
       positionBeforeAMF = this.#dynbuf.position; this.#dynbuf.writeInt(-1);
-      this.serialize(header.data); positionAfterAMF = this.#dynbuf.position;
-      this.#dynbuf.position = positionBeforeAMF; this.#dynbuf.writeInt(positionAfterAMF - positionBeforeAMF - 4);
-      this.#dynbuf.position = positionAfterAMF;
+      // Serialize data
+      this.#serializeAVMPlus(header.data);
+      // Store the position after writing AMF data and go back to before we serialized
+      positionAfterAMF = this.#dynbuf.position; this.#dynbuf.position = positionBeforeAMF;
+      // Write the amount of bytes needed to serialize the AMF data and reset back for closure
+      this.#dynbuf.writeInt(positionAfterAMF - positionBeforeAMF - 4); this.#dynbuf.position = positionAfterAMF;
+      // Todo - Reference reset, where?
     }
 
     this.#dynbuf.writeShort(packet.messageCount);
     for (const message of packet.messages) {
-      let positionBeforeAMF = 0, positionAfterAMF = 0;
-
+      // Write 'targetURI' and 'responseURI'
       this.#dynbuf.writeUTF(message.targetURI);
       this.#dynbuf.writeUTF(message.responseURI);
+      // Store the position before writing AMF data and temporarily write -1 for length
       positionBeforeAMF = this.#dynbuf.position; this.#dynbuf.writeInt(-1);
-      this.#serializeStrictArray(message.data); positionAfterAMF = this.#dynbuf.position;
-      this.#dynbuf.position = positionBeforeAMF; this.#dynbuf.writeInt(positionAfterAMF - positionBeforeAMF - 4);
-      this.#dynbuf.position = positionAfterAMF;
+      // Serialize data
+      this.#serializeStrictArray(message.data);
+      // Store the position after writing AMF data and go back to before we serialized
+      positionAfterAMF = this.#dynbuf.position; this.#dynbuf.position = positionBeforeAMF;
+      // Write the amount of bytes needed to serialize the AMF data and reset back for closure
+      this.#dynbuf.writeInt(positionAfterAMF - positionBeforeAMF - 4); this.#dynbuf.position = positionAfterAMF;
+      // Todo - Reference reset, where?
     }
 
     return this;
@@ -312,7 +325,21 @@ export default class Serializer {
     this.#dynbuf.writeUnsignedInt(value.length);
 
     for (let i = 0; i < value.length; i++) {
-      this.serialize(value[i]);
+      this.#serializeAVMPlus(value[i]);
+    }
+  }
+
+  /**
+   * Serializes an AVMPlus marker and its value in AMF3
+   * @private
+   * @param {any} value - The value to serialize in AMF3, some sort of object
+   */
+  #serializeAVMPlus(value) {
+    if ((value === null) || (value === undefined) || Serializer.#NATIVE_TYPES.includes(typeof value)) {
+      this.serialize(value);
+    } else {
+      this.#dynbuf.writeByte(Markers.AMF0.AVMPLUS);
+      this.#dynbuf.writeBytes(this.#AMF_Serialize(value));
     }
   }
 
