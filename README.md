@@ -92,7 +92,7 @@ class Character {
   }
 }
 
-AMF.classAlias.registerClassAlias('src.Character', Character);
+AMF.classAlias.registerClassAlias('src.Character', Character); // Must match in Object.defineProperty or else it'll write an empty class name
 
 const value = [new Character('Seir')];
 Object.defineProperty(value, 'VectorObject', { value: 'src.Character' });
