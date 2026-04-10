@@ -19,8 +19,6 @@
 ## Remoting
 
 - Remoting functionality
-  - Strict array type
-- Flex remoting?
 
 ## AMF0
 
