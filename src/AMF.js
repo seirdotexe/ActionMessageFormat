@@ -30,7 +30,7 @@ export class AMF {
    * @type {{ 0: Serializer0, 3: Serializer3}}
    */
   static #serializers = {
-    0: new Serializer0(this.classAlias),
+    0: new Serializer0(this.classAlias, AMF.serialize.bind(AMF)),
     3: new Serializer3(this.classAlias)
   };
 

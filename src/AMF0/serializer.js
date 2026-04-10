@@ -21,6 +21,12 @@ export default class Serializer {
    */
   #classAlias;
   /**
+   * The 'serialize' function holder
+   * @private
+   * @type {Function}
+   */
+  #AMF_Serialize;
+  /**
    * The DynBuffer instance containing AMF0 bytes for this instance
    * @private
    * @type {DynBuffer}
@@ -48,9 +54,11 @@ export default class Serializer {
   /**
    * Creates a new AMF0 serializer
    * @param {ClassAlias} classAlias - The class alias internally coming from the AMF entrypoint class
+   * @param {Function} AMF_Serialize - The 'serialize' function coming from the AMF entrypoint class
    */
-  constructor(classAlias) {
+  constructor(classAlias, AMF_Serialize) {
     this.#classAlias = classAlias;
+    this.#AMF_Serialize = AMF_Serialize;
     this.#dynbuf = new DynBuffer();
     this.#reference = new Reference();
   }
