@@ -198,7 +198,7 @@ export default class Serializer {
    * Serializes an object
    * @private
    * @param {object} value - The object to serialize
-   * @throws {ReferenceError} IF an attempt is made to serialize an unregistered externalizable class
+   * @throws {ReferenceError} If an attempt is made to serialize an unregistered externalizable class
    */
   #serializeObject(value) {
     if (this.#dynamicPropertyWriter) {
@@ -217,11 +217,12 @@ export default class Serializer {
     traits.className = this.#classAlias.getAliasByClass(proto.constructor) || '';
     // Whether the value is externalizable. It gives more functionality in how to write/read properties
     traits.externalizable = ('writeExternal' in value) && ('readExternal' in value); // Todo - Decorators, but this is viable for now
-    // Whether the value's class is dynamic. This is a tough one as every object in JS is dynamic; you can always add properties. To give functionality to mark a class as being dynamic, we check a getter named 'dynamic'
+    // Whether the value's class is dynamic. This is a tough one as every object in JS is dynamic; you can always add properties
+    // To give functionality to mark a class as being dynamic, we check a getter named 'dynamic'. We replicate AVM as best as possible for anything else
     traits.dynamic = (Object.getOwnPropertyDescriptor(proto, 'dynamic')?.get && value?.dynamic) || (!traits.className && proto.constructor.name === 'Object');
     // The identified sealed members of the value, only applicable to typed objects
     traits.keys = (traits.externalizable || proto.constructor.name === 'Object') ? [] : Object.keys(value);
-    // Last, the amount of keys
+    // Last, the amount of sealed members
     traits.count = traits.keys.length;
 
     // AMF3 requires externalizable objects to have a registered alias
@@ -236,7 +237,7 @@ export default class Serializer {
       this.#writeUint29(3 | (traits.externalizable ? 4 : 0) | (traits.dynamic ? 8 : 0) | (traits.count << 4)); // U29O-traits
       this.#serializeString(traits.className, false); // class-name
 
-      traits.keys.forEach((traitKey) => this.#serializeString(traitKey, false)); // Write sealed member names first as specified in the spec
+      traits.keys.forEach((traitKey) => this.#serializeString(traitKey, false)); // Write sealed member names first, as specified in the spec
     }
 
     // Write sealed member values
@@ -248,7 +249,7 @@ export default class Serializer {
       value.writeExternal(this.#dynbuf);
     } else if (traits.dynamic) {
       for (const key in value) {
-        if (traits.keys.includes(key)) continue; // This is necessary to prevent writing sealed member names a second time for registered classes
+        if (traits.keys.includes(key)) continue; // This is necessary, because it prevents writing sealed member names a second time for registered classes
 
         this.#serializeString(key, false);
         this.serialize(value[key]);
@@ -265,7 +266,7 @@ export default class Serializer {
    */
   #serializeArray(value) {
     if (Object.getOwnPropertyDescriptor(value, 'VectorObject')?.value) {
-      return this.#serializeTypedArray(value, 'VectorObject');
+      return this.#serializeTypedArray(value, 'ObjectArray');
     }
 
     // Todo
@@ -305,7 +306,7 @@ export default class Serializer {
    * Serializes a Vector (typed array)
    * @private
    * @param {Int32Array|Uint32Array|Float64Array|any[]} value - The Vector to serialize
-   * @param {'Int32Array'|'Uint32Array'|'Float64Array'|'VectorObject'} type - The type of the Vector to serialize
+   * @param {'Int32Array'|'Uint32Array'|'Float64Array'|'ObjectArray'} type - The type of the Vector to serialize
    */
   #serializeTypedArray(value, type) {
     this.#dynbuf.writeByte(
@@ -319,7 +320,7 @@ export default class Serializer {
     this.#writeUint29((value.length << 1) | 1);
     this.#dynbuf.writeBoolean(!Object.isExtensible(value));
 
-    if (type === 'VectorObject') {
+    if (type === 'ObjectArray') {
       const aliasName = Object.getOwnPropertyDescriptor(value, 'VectorObject').value;
       const classObj = this.#classAlias.getClassByAlias(aliasName);
 

@@ -134,23 +134,24 @@ export default class Serializer {
     let positionBeforeAMF = 0, positionAfterAMF = 0;
 
     this.#dynbuf.writeShort(packet.version);
-
+    // Write headers
     this.#dynbuf.writeShort(packet.headerCount);
     for (const header of packet.headers) {
       // Write 'name' and 'mustUnderstand'
       this.#dynbuf.writeUTF(header.name);
       this.#dynbuf.writeBoolean(header.mustUnderstand);
-      // Store the position before writing AMF data and temporarily write -1 for length
+      // Store the position before writing AMF data, and temporarily write -1 for length
       positionBeforeAMF = this.#dynbuf.position; this.#dynbuf.writeInt(-1);
       // Serialize data
       this.#serializeAVMPlus(header.data);
-      // Store the position after writing AMF data and go back to before we serialized
+      // Store the position after writing AMF data, then go back to before we serialized 'data'
       positionAfterAMF = this.#dynbuf.position; this.#dynbuf.position = positionBeforeAMF;
-      // Write the amount of bytes needed to serialize the AMF data and reset back for closure
+      // Write the amount of bytes needed that were needed to serialize the AMF data, then reset back for closure
       this.#dynbuf.writeInt(positionAfterAMF - positionBeforeAMF - 4); this.#dynbuf.position = positionAfterAMF;
       // Todo - Reference reset, where?
     }
 
+    // Write messages
     this.#dynbuf.writeShort(packet.messageCount);
     for (const message of packet.messages) {
       // Write 'targetURI' and 'responseURI'
@@ -160,9 +161,9 @@ export default class Serializer {
       positionBeforeAMF = this.#dynbuf.position; this.#dynbuf.writeInt(-1);
       // Serialize data
       this.#serializeStrictArray(message.data);
-      // Store the position after writing AMF data and go back to before we serialized
+      // Store the position after writing AMF data, then go back to before we serialized 'data'
       positionAfterAMF = this.#dynbuf.position; this.#dynbuf.position = positionBeforeAMF;
-      // Write the amount of bytes needed to serialize the AMF data and reset back for closure
+      // Write the amount of bytes that were needed to serialize the AMF data, then reset back for closure
       this.#dynbuf.writeInt(positionAfterAMF - positionBeforeAMF - 4); this.#dynbuf.position = positionAfterAMF;
       // Todo - Reference reset, where?
     }
