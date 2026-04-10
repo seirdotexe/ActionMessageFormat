@@ -307,6 +307,7 @@ export default class Serializer {
    * @private
    * @param {Int32Array|Uint32Array|Float64Array|any[]} value - The Vector to serialize
    * @param {'Int32Array'|'Uint32Array'|'Float64Array'|'ObjectArray'} type - The type of the Vector to serialize
+   * @throws {TypeError} If a Vector Object was tried to serialize with multiple object types
    */
   #serializeTypedArray(value, type) {
     this.#dynbuf.writeByte(
@@ -321,6 +322,10 @@ export default class Serializer {
     this.#dynbuf.writeBoolean(!Object.isExtensible(value));
 
     if (type === 'ObjectArray') {
+      // We loosely check if the type of the first value in the array matches to the other values
+      const isTyped = value.every((item) => (typeof item === typeof value[0]));
+      if (!isTyped) throw new TypeError('Tried to serialize a Vector Object with multiple object types');
+
       const aliasName = Object.getOwnPropertyDescriptor(value, 'VectorObject').value;
       const classObj = this.#classAlias.getClassByAlias(aliasName);
 
