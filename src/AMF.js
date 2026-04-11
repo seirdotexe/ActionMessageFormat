@@ -6,7 +6,6 @@ import { default as Serializer3 } from './AMF3/serializer.js';
 import { default as Deserializer0 } from './AMF0/deserializer.js';
 import { default as Deserializer3 } from './AMF3/deserializer.js';
 
-import { DeserializerOptions, SerializerOptions } from './AMF/static/options.js';
 
 /**
  * @typedef {import('./AMF/remoting/packet.js').default} Packet
@@ -63,12 +62,9 @@ export class AMF {
    * @static
    * @param {any} value - Any supported value to serialize
    * @param {0|3} [version=3] - The AMF version
-   * @param {SerializerOptions?} options - The options object which has certain settings to utilize different AMF behavior
    * @returns {Buffer} Returns the AMF data in a buffer
    */
-  static serialize(value, version = 3, options = SerializerOptions) {
-    this.#serializers[version].options = options;
-
+  static serialize(value, version = 3) {
     return this.#serializers[version].serialize(value).flush();
   }
 
@@ -77,12 +73,9 @@ export class AMF {
    * @static
    * @param {Buffer} buffer - The AMF binary data
    * @param {0|3} [version=3] - The AMF version
-   * @param {DeserializerOptions?} options - The options object which has certain settings to utilize different AMF behavior
    * @returns {any} The deserialized object
    */
-  static deserialize(buffer, version = 3, options = DeserializerOptions) {
-    this.#deserializers[version].options = options;
-
+  static deserialize(buffer, version = 3) {
     return this.#deserializers[version].deserialize(buffer);
   }
 
@@ -90,12 +83,9 @@ export class AMF {
    * Serializes a packet into AMF binary data
    * @static
    * @param {Packet} packet - The AMF packet to serialize
-   * @param {DeserializerOptions?} options - The options object which has certain settings to utilize different AMF behavior. **Depends on 'packet.version'**!
    * @returns {Buffer} Returns the AMF packet data in a buffer
    */
-  static serializePacket(packet, options = SerializerOptions) {
-    this.#serializers[packet.version].options = options;
-
+  static serializePacket(packet) {
     return this.#serializers[0].serializePacket(packet).flush();
   }
 }

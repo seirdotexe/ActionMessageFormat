@@ -1,10 +1,9 @@
 import DynBuffer from '@seirdotexe/dynbuffer';
-import Markers from '../AMF/static/markers.js';
+import Markers from '../AMF/markers.js';
 import Reference from './reference.js';
 
 /**
  * @typedef {import('../AMF/alias.js').default} ClassAlias
- * @typedef {import('../AMF/static/options.js').AMFDeserializerOptions} AMFOptions
  */
 
 /** @module AMF0/Deserializer */
@@ -27,12 +26,6 @@ export default class Deserializer {
    * @type {Reference}
    */
   #reference;
-  /**
-   * The AMF options object holder
-   * @private
-   * @type {AMFOptions}
-   */
-  #options;
 
   /**
    * Creates a new AMF3 deserializer
@@ -42,14 +35,6 @@ export default class Deserializer {
     this.#classAlias = classAlias;
     this.#dynbuf = new DynBuffer();
     this.#reference = new Reference();
-  }
-
-  /**
-   * Cache the specified AMF options
-   * @param {AMFOptions} optionsObj - The AMF options object
-   */
-  set options(optionsObj) {
-    this.#options = optionsObj;
   }
 
   /**
@@ -216,7 +201,7 @@ export default class Deserializer {
       }
 
       // Seal the class when the 'dynamic' getter is explicitly set to false to disallow adding properties to the class
-      if (Object.getOwnPropertyDescriptor(Object.getPrototypeOf(value), 'dynamic')?.get && !traits.dynamic && this.#options.strictDynamic) {
+      if (Object.getOwnPropertyDescriptor(Object.getPrototypeOf(value), 'dynamic')?.get && !traits.dynamic) {
         Object.seal(value);
       }
 
@@ -240,8 +225,6 @@ export default class Deserializer {
    * @throws {ReferenceError} If an unknown AMF3 marker has been found
    */
   #deserializeUnidentifiedObject(marker) {
-    if (this.#options.throwErrorUnsupported) {
-      throw new ReferenceError(`Unknown or unsupported AMF3 marker found: '${marker}'.`);
-    }
+    throw new ReferenceError(`Unknown or unsupported AMF3 marker found: '${marker}'.`);
   }
 }

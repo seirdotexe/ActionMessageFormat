@@ -1,11 +1,10 @@
 import DynBuffer from '@seirdotexe/dynbuffer';
-import Markers from '../AMF/static/markers.js';
+import Markers from '../AMF/markers.js';
 import { determineArray, isNativeObject } from '../AMF/utils.js';
 import Reference from './reference.js';
 
 /**
  * @typedef {import('../AMF/alias.js').default} ClassAlias
- * @typedef {import('../AMF/static/options.js').AMFSerializerOptions} AMFOptions
  */
 
 /** @module AMF3/Serializer */
@@ -34,12 +33,6 @@ export default class Serializer {
    * @type {Function}
    */
   #dynamicPropertyWriter;
-  /**
-   * The AMF options object holder
-   * @private
-   * @type {AMFOptions}
-   */
-  #options;
 
   /**
    * Creates a new AMF3 serializer
@@ -57,14 +50,6 @@ export default class Serializer {
    */
   set dynamicPropertyWriter(method) {
     this.#dynamicPropertyWriter = method;
-  }
-
-  /**
-   * Cache the specified AMF options
-   * @param {AMFOptions} optionsObj - The AMF options object
-   */
-  set options(optionsObj) {
-    this.#options = optionsObj;
   }
 
   /**
@@ -378,7 +363,9 @@ export default class Serializer {
 
     if (aliasName || !isNativeObject(constructor)) {
       this.#serializeObject(value); // Serialize typed and anonymous objects
-    } else if (this.#options.throwErrorUnsupported) {
+    } else if (constructor.name === 'Set') {
+      this.#serializeArray([...value]);
+    } else {
       throw new ReferenceError(`Unknown or unsupported AMF3 type found: '${constructor.name}'.`);
     }
   }

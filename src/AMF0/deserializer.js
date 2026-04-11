@@ -1,10 +1,9 @@
 import DynBuffer from '@seirdotexe/dynbuffer';
-import Markers from '../AMF/static/markers.js';
+import Markers from '../AMF/markers.js';
 import Reference from './reference.js';
 
 /**
  * @typedef {import('../AMF/alias.js').default} ClassAlias
- * @typedef {import('../AMF/static/options.js').AMFDeserializerOptions} AMFOptions
  */
 
 /** @module AMF0/Deserializer */
@@ -33,12 +32,6 @@ export default class Deserializer {
    * @type {Reference}
    */
   #reference;
-  /**
-   * The AMF options object holder
-   * @private
-   * @type {AMFOptions}
-   */
-  #options;
 
   /**
    * Creates a new AMF0 deserializer
@@ -50,14 +43,6 @@ export default class Deserializer {
     this.#AMF_Deserialize = AMF_Deserialize;
     this.#dynbuf = new DynBuffer();
     this.#reference = new Reference();
-  }
-
-  /**
-   * Cache the specified AMF options
-   * @param {AMFOptions} optionsObj - The AMF options object
-   */
-  set options(optionsObj) {
-    this.#options = optionsObj;
   }
 
   /**
@@ -86,8 +71,6 @@ export default class Deserializer {
       case Markers.AMF0.ECMA_ARRAY: return this.#deserializeArray();
       case Markers.AMF0.DATE: return this.#deserializeDate();
       case Markers.AMF0.TYPED_OBJECT: return this.#deserializeTypedObject();
-      case Markers.AMF0.MAP: return this.#deserializeMap();
-      case Markers.AMF0.SET: return this.#deserializeSet();
       case Markers.AMF0.AVMPLUS: return this.#deserializeAVMPlus();
       default: return this.#deserializeUnidentifiedObject(marker);
     }
@@ -185,7 +168,7 @@ export default class Deserializer {
    */
   #deserializeDate() {
     const time = this.#dynbuf.readDouble();
-    const timezoneOffset = this.#dynbuf.readShort(); // Todo - Perhaps we can utilize this, the option is there: dateOffset
+    const timezoneOffset = this.#dynbuf.readShort(); //! Unused
     const value = new Date(time);
 
     this.#reference.set(value);
@@ -213,41 +196,6 @@ export default class Deserializer {
   }
 
   /**
-   * Deserializes a map
-   * @private
-   * @returns {Map} The deserialized map
-   */
-  #deserializeMap() {
-    const value = new Map();
-
-    this.#reference.set(value);
-
-    for (let key = this.#dynbuf.readUTF(); !!key || (this.#dynbuf.readByte() !== Markers.AMF0.OBJECT_END); key = this.#dynbuf.readUTF()) {
-      value.set(key, this.deserialize());
-    }
-
-    return value;
-  }
-
-  /**
-   * Deserializes a set
-   * @private
-   * @returns {Set} The deserialized set
-   */
-  #deserializeSet() {
-    const value = new Set();
-    const size = this.#dynbuf.readUnsignedInt();
-
-    this.#reference.set(value);
-
-    for (let i = 0; i < size; i++) {
-      value.add(this.deserialize());
-    }
-
-    return value;
-  }
-
-  /**
    * Deserializes an AVMPlus marker to switch to AMF3
    * @private
    */
@@ -264,7 +212,7 @@ export default class Deserializer {
    * @throws {ReferenceError} If an unknown AMF0 marker has been found
    */
   #deserializeUnidentifiedObject(marker) {
-    if ((marker !== Markers.AMF0.UNSUPPORTED) && this.#options.throwErrorUnsupported) {
+    if (marker !== Markers.AMF0.UNSUPPORTED) {
       throw new ReferenceError(`Unknown or unsupported AMF0 marker found: '${marker}'.`);
     }
   }

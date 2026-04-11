@@ -53,7 +53,7 @@ const Markers = {
     BOOLEAN: 0x01,
     STRING: 0x02,
     OBJECT: 0x03,
-    MAP: 0x04, //! Off-spec - Replace unused 'MOVIECLIP' with 'MAP'
+    MOVIECLIP: 0x04, // Reserved
     NULL: 0x05,
     UNDEFINED: 0x06,
     REFERENCE: 0x07,
@@ -63,7 +63,7 @@ const Markers = {
     DATE: 0x0B,
     LONG_STRING: 0x0C,
     UNSUPPORTED: 0x0D,
-    SET: 0x0E, //! Off-spec - Replace unused 'RECORDSET' with 'SET'
+    RECORDSET: 0x0E, // Reserved
     XML_DOCUMENT: 0x0F, // Todo - Convert to string?
     TYPED_OBJECT: 0x10,
     AVMPLUS: 0x11
