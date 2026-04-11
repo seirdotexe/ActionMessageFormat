@@ -1,6 +1,6 @@
 # Action Message Format
 
-Adobe's binary format, Action Message Format (AMF0 and AMF3), faithfully rewritten in modern JavaScript.
+Adobe's binary format, Action Message Format (AMF0 and AMF3), implemented in modern JavaScript.
 
 # Examples
 
