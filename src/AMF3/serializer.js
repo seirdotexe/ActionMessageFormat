@@ -74,7 +74,7 @@ export default class Serializer {
       this.#dynbuf.writeByte(((value >> 8) & 0x7F) | 0x80);
       this.#dynbuf.writeByte(value & 0xFF);
     } else {
-      throw new RangeError(`The value '${value}' is out of range for AMF3 U29.`);
+      throw new RangeError(`The uint29 '${value}' is out of range for AMF3 U29.`);
     }
   }
 
@@ -186,9 +186,7 @@ export default class Serializer {
    * @throws {ReferenceError} If an attempt is made to serialize an unregistered externalizable class
    */
   #serializeObject(value) {
-    if (this.#dynamicPropertyWriter) {
-      this.#dynamicPropertyWriter(value);
-    }
+    if (this.#dynamicPropertyWriter) this.#dynamicPropertyWriter(value);
 
     this.#dynbuf.writeByte(Markers.AMF3.OBJECT);
 

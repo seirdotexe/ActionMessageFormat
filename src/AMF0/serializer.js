@@ -14,6 +14,13 @@ import Reference from './reference.js';
 /** @module AMF0/Serializer */
 export default class Serializer {
   /**
+   * Initialize the list of types (along null and undefined) to serialize with AMF0 when facing possible AVM+ challenges
+   * @static
+   * @type {string[]}
+   */
+  static #AVM_AMF0_ALLOWED = ['number', 'boolean', 'string'];
+
+  /**
    * The AMF class alias holder
    * @private
    * @type {ClassAlias}
@@ -43,13 +50,6 @@ export default class Serializer {
    * @type {Function}
    */
   #dynamicPropertyWriter;
-
-  /**
-   * Initialize the list of types to serialize with AMF0 when facing possible AVM+ challenges
-   * @static
-   * @type {string[]}
-   */
-  static #NATIVE_TYPES = ['number', 'boolean', 'string'];
 
   /**
    * Creates a new AMF0 serializer
@@ -216,9 +216,7 @@ export default class Serializer {
    * @param {object} value - The object to serialize
    */
   #serializeObject(value) {
-    if (this.#dynamicPropertyWriter) {
-      this.#dynamicPropertyWriter(value);
-    }
+    if (this.#dynamicPropertyWriter) this.#dynamicPropertyWriter(value);
 
     const cache = this.#reference.has(value);
     if (cache.referenced) return this.#serializeReference(cache.index);
@@ -252,7 +250,7 @@ export default class Serializer {
     AVM secretly cleans up sparse entries in an array. But very important to note: it only does this when setting array values by index. It does this to optimize buffer space
 
     var value:Array = []; // It won't optimize when you do [,,1] - Also Node is unable to determine the difference. AVM probably inspects this behavior through a proxy class
-    value[2] = 1;
+    value[2] = 1; // Optimized
 
     The AMF0 serialized hex will be: 08 00 00 00 03 00 01 32 00 3f f0 00 00 00 00 00 00 00 00 09
     01 32 = writeUTF length and the letter '2' followed by the number 1 in writeDouble
@@ -304,6 +302,7 @@ export default class Serializer {
    * @param {any[]} value - The strict array to serialize
    */
   #serializeStrictArray(value) {
+    // Todo - I'm curious if this is necessary. This type is only used for serializing message.data for packet, and after that, the references get reset anyway...
     const cache = this.#reference.has(value);
     if (cache.referenced) return this.#serializeReference(cache.index);
 
@@ -321,7 +320,7 @@ export default class Serializer {
    * @param {any} value - The value to serialize in AMF3, some sort of object
    */
   #serializeAVMPlus(value) {
-    if ((value === null) || (value === undefined) || Serializer.#NATIVE_TYPES.includes(typeof value)) {
+    if ((value === null) || (value === undefined) || Serializer.#AVM_AMF0_ALLOWED.includes(typeof value)) {
       this.serialize(value);
     } else {
       this.#dynbuf.writeByte(Markers.AMF0.AVMPLUS);

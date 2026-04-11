@@ -168,7 +168,7 @@ export default class Deserializer {
    */
   #deserializeDate() {
     const time = this.#dynbuf.readDouble();
-    const timezoneOffset = this.#dynbuf.readShort(); //! Unused
+    const timezoneOffset = this.#dynbuf.readShort(); //! Unused and reserved
     const value = new Date(time);
 
     this.#reference.set(value);
