@@ -10,10 +10,12 @@
 
 - Restructure marker to value order in code `Serializer` and `Deserializer`
 - XML functionality
-- Tests
-  - Dynamic property writer reference test
-  - Explicity test AMF3 trait reference
-  - Testing AS3 NetConnection
+
+## AMF tests
+
+- What's the point of checking for reference in `serializeStrictArray`
+- Explicity test AMF3 trait reference
+- Testing AS3 NetConnection
 
 ## Remoting
 
