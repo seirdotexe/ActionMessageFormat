@@ -69,7 +69,7 @@ export default class Deserializer {
 
   /**
    * Deserializes AMF binary data to an object
-   * @param {buffer?} buffer - The buffer containing the AMF binary data, only applicable from base call in AMF entrypoint class
+   * @param {Buffer?} buffer - The buffer containing the AMF binary data, only applicable from base call in AMF entrypoint class
    * @returns {any} The deserialized object
    */
   deserialize(buffer) {

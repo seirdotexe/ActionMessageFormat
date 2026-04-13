@@ -281,7 +281,7 @@ export default class Serializer {
   /**
    * Serializes a ByteArray (DynBuffer)
    * @private
-   * @param {DynBuffer|import('node:buffer').Buffer} value - The ByteArray to serialize
+   * @param {DynBuffer|Buffer} value - The ByteArray to serialize
    */
   #serializeByteArray(value) {
     this.#dynbuf.writeByte(Markers.AMF3.BYTE_ARRAY);

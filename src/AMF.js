@@ -6,7 +6,6 @@ import { default as Serializer3 } from './AMF3/serializer.js';
 import { default as Deserializer0 } from './AMF0/deserializer.js';
 import { default as Deserializer3 } from './AMF3/deserializer.js';
 
-
 /**
  * @typedef {import('./AMF/remoting/packet.js').default} Packet
  */
