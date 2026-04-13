@@ -53,8 +53,7 @@ export default class Deserializer {
   deserialize(buffer) {
     // Copy over the buffer to the (empty) DynBuffer instance when passed
     if (buffer && (this.#dynbuf.length === 0)) {
-      this.#dynbuf.writeBytes(buffer);
-      this.#dynbuf.position = 0; // Reset so we can start reading AMF data
+      this.#dynbuf.writeBytes(buffer); this.#dynbuf.position = 0; // Read and reset to the start so we can start reading AMF binary data
     }
 
     const marker = this.#dynbuf.readByte();
