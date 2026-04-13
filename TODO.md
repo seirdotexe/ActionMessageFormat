@@ -16,6 +16,7 @@
 - What's the point of checking for reference in `serializeStrictArray`
 - Explicity test AMF3 trait reference
 - Testing AS3 NetConnection
+  - Testing packet version behavior
 
 ## Remoting
 
