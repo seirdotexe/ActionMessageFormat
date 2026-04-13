@@ -34,6 +34,7 @@ export default class Reference {
     this.#strings = [];
     this.#objects = [];
     this.#traits = [];
+    this.reset = this.reset.bind(this); // Bind so 'serializePacket' and 'deserializePacket' can pass from within AMF entrypoint
     this.#stringify = fastJson({
       title: 'AMF3 traits schema',
       type: 'object',
