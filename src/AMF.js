@@ -86,6 +86,6 @@ export class AMF {
    * @returns {Buffer} Returns the AMF packet data in a buffer
    */
   static serializePacket(packet) {
-    return this.#serializers[0].serializePacket(packet).flush();
+    return this.#serializers[0].serializePacket(packet, this.#serializers[3].reset).flush();
   }
 }

@@ -53,6 +53,14 @@ export default class Serializer {
   }
 
   /**
+   * Returns the AMF3 reference reset method, needed for serializing and deserializing AMF packets in AMF0 base
+   * @returns {Function} The 'reset' function coming from the AMF3 Reference class
+   */
+  get reset() {
+    return this.#reference.reset;
+  }
+
+  /**
    * Writes a variable length unsigned 29-bit integer
    * @private
    * @param {number} value - The value to encode
