@@ -1,5 +1,6 @@
 import DynBuffer from '@seirdotexe/dynbuffer';
 import Markers from '../AMF/markers.js';
+import Packet from '../AMF/remoting/packet.js';
 import Reference from './reference.js';
 
 /**
@@ -73,6 +74,43 @@ export default class Deserializer {
       case Markers.AMF0.AVMPLUS: return this.#deserializeAVMPlus();
       default: return this.#deserializeUnidentifiedObject(marker);
     }
+  }
+
+  /**
+   * Deserializes AMF binary data to a packet
+   * @param {Buffer} buffer - The buffer containing the AMF binary data
+   * @param {Function} AMF3_REFERENCE_RESET - The 'reset' function coming from the AMF3 Reference class
+   * @returns {Packet} The deserialized packet
+   */
+  deserializePacket(buffer, AMF3_REFERENCE_RESET) {
+    this.#dynbuf.writeBytes(buffer); this.#dynbuf.position = 0; // Read and reset to the start so we can start reading AMF binary data
+
+    const version = this.#dynbuf.readShort();
+    const packet = new Packet(version);
+
+    for (let i = 0, headerCount = this.#dynbuf.readUnsignedShort(); i < headerCount; i++) {
+      this.#reference.reset(); AMF3_REFERENCE_RESET();
+
+      const name = this.#dynbuf.readUTF();
+      const mustUnderstand = this.#dynbuf.readBoolean();
+      const length = this.#dynbuf.readUnsignedInt(); // Todo - Check?
+      const data = this.deserialize();
+
+      packet.addHeader(name, mustUnderstand, data);
+    }
+
+    for (let i = 0, messageCount = this.#dynbuf.readUnsignedShort(); i < messageCount; i++) {
+      this.#reference.reset(); AMF3_REFERENCE_RESET();
+
+      const targetURI = this.#dynbuf.readUTF();
+      const responseURI = this.#dynbuf.readUTF();
+      const length = this.#dynbuf.readUnsignedInt(); // Todo - Check?
+      // Todo - Strict array
+
+      //packet.addMessage(targetURI, responseURI, data);
+    }
+
+    return packet;
   }
 
   /**

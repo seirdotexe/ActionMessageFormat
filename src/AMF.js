@@ -87,4 +87,14 @@ export class AMF {
   static serializePacket(packet) {
     return this.#serializers[0].serializePacket(packet, this.#serializers[3].reset).flush();
   }
+
+  /**
+   * Deserializes AMF binary data to a packet
+   * @static
+   * @param {Buffer} buffer - The AMF binary data
+   * @returns {Packet} The deserialized packet
+   */
+  static deserializePacket(buffer) {
+    return this.#deserializers[0].deserializePacket(buffer, this.#deserializers[3].reset);
+  }
 }
