@@ -180,7 +180,7 @@ export default class Deserializer {
         traits.keys[i] = this.#deserializeString();
       }
 
-      this.#reference.set(traits, 'traits');
+      this.#reference.set(JSON.stringify(traits), 'traits');
     }
 
     // Handle externalizable classes or registered classes

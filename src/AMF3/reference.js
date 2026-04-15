@@ -1,5 +1,3 @@
-import fastJson from 'fast-json-stringify';
-
 /** @module AMF3/Reference */
 export default class Reference {
   /**
@@ -20,12 +18,6 @@ export default class Reference {
    * @type {string[]}
    */
   #traits;
-  /**
-   * Initialize the JSON stringify tool for traits
-   * @private
-   * @type {Function}
-   */
-  #stringify;
 
   /**
    * Creates a new AMF3 Reference holder
@@ -35,30 +27,6 @@ export default class Reference {
     this.#objects = [];
     this.#traits = [];
     this.reset = this.reset.bind(this); // Bind so 'serializePacket' and 'deserializePacket' can pass from within AMF entrypoint
-    this.#stringify = fastJson({
-      title: 'AMF3 traits schema',
-      type: 'object',
-      properties: {
-        className: {
-          type: 'string'
-        },
-        externalizable: {
-          type: 'boolean'
-        },
-        dynamic: {
-          type: 'boolean'
-        },
-        keys: {
-          type: 'array',
-          items: {
-            type: 'string'
-          }
-        },
-        count: {
-          type: 'integer'
-        }
-      }
-    });
   }
 
   /**
@@ -116,13 +84,10 @@ export default class Reference {
    * @returns {{index: number, referenced: boolean}} The cache object; its index and if it's referenced or not
    */
   has(value, table) {
-    // We need to stringify the trait object beforehand
-    let traitStringified; if (table === 'traits') traitStringified = this.#stringify(value);
-
-    const index = this[table].indexOf((table === 'traits') ? traitStringified : value);
+    const index = this[table].indexOf(value);
     const cache = { index, referenced: (index !== -1) };
 
-    if (!cache.referenced) this.set((table === 'traits') ? traitStringified : value, table);
+    if (!cache.referenced) this.set(value, table);
 
     return cache;
   }
