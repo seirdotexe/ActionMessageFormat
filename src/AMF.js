@@ -95,6 +95,6 @@ export class AMF {
    * @returns {Packet} The deserialized packet
    */
   static deserializePacket(buffer) {
-    return this.#deserializers[0].deserializePacket(buffer, this.#deserializers[3].reset);
+    return this.#deserializers[0].deserializePacket(buffer, this.#deserializers[3].reset, this.#deserializers[3].bytesAvailable.bind(this.#deserializers[3]));
   }
 }

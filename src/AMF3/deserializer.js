@@ -45,6 +45,10 @@ export default class Deserializer {
     return this.#reference.reset;
   }
 
+  bytesAvailable() {
+    return this.#dynbuf.bytesAvailable;
+  }
+
   /**
    * Reads a variable length unsigned 29-bit integer
    * @private
@@ -73,8 +77,8 @@ export default class Deserializer {
    * @returns {any} The deserialized object
    */
   deserialize(buffer) {
-    // Copy over the buffer to the (empty) DynBuffer instance when passed
-    if (buffer && (this.#dynbuf.length === 0)) {
+    if (buffer) {
+      if (this.#dynbuf.length !== 0) this.#dynbuf.clear();
       this.#dynbuf.writeBytes(buffer); this.#dynbuf.position = 0; // Read and reset to the start so we can start reading AMF binary data
     }
 

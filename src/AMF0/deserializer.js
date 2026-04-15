@@ -40,6 +40,9 @@ export default class Deserializer {
    * @param {Function} AMF_Deserialize - The 'deserialize' function coming from the AMF entrypoint class
    */
   constructor(classAlias, AMF_Deserialize) {
+    this.length = 0;
+    this.AMF3_DYNBUF_BYTESAVAILABLE = null;
+
     this.#classAlias = classAlias;
     this.#AMF_Deserialize = AMF_Deserialize;
     this.#dynbuf = new DynBuffer();
@@ -81,33 +84,57 @@ export default class Deserializer {
    * @param {Buffer} buffer - The buffer containing the AMF binary data
    * @param {Function} AMF3_REFERENCE_RESET - The 'reset' function coming from the AMF3 Reference class
    * @returns {Packet} The deserialized packet
+   * @throws {RangeError} If the AMF binary data 'length' isn't the same amount as what we deserialized
    */
-  deserializePacket(buffer, AMF3_REFERENCE_RESET) {
+  deserializePacket(buffer, AMF3_REFERENCE_RESET, AMF3_DYNBUF_BYTESAVAILABLE) {
+    this.AMF3_DYNBUF_BYTESAVAILABLE = AMF3_DYNBUF_BYTESAVAILABLE;
     this.#dynbuf.writeBytes(buffer); this.#dynbuf.position = 0; // Read and reset to the start so we can start reading AMF binary data
 
+    let positionBeforeAMF = 0
     const version = this.#dynbuf.readShort();
     const packet = new Packet(version);
 
+    // Read headers
     for (let i = 0, headerCount = this.#dynbuf.readUnsignedShort(); i < headerCount; i++) {
+      console.log("HEADER")
+      // Serializers and deserializers must reset reference indices to 0 each time a new header is processed
       this.#reference.reset(); AMF3_REFERENCE_RESET();
-
+      // Read 'name' and 'mustUnderstand'
       const name = this.#dynbuf.readUTF();
       const mustUnderstand = this.#dynbuf.readBoolean();
-      const length = this.#dynbuf.readUnsignedInt(); // Todo - Check?
+      // Read the expected amount of AMF bytes and store the position before reading AMF data
+      const length = this.#dynbuf.readUnsignedInt(); positionBeforeAMF = this.#dynbuf.position; this.length = length;
+      // Deserialize data
       const data = this.deserialize();
+
+      // Check if the header is malformed
+      if (this.#dynbuf.position !== (positionBeforeAMF + length)) {
+        console.log(`OOPS! Length: ${length}, Position: ${this.#dynbuf.position}, Idk: ${positionBeforeAMF + length}`);
+      }
 
       packet.addHeader(name, mustUnderstand, data);
     }
 
-    for (let i = 0, messageCount = this.#dynbuf.readUnsignedShort(); i < messageCount; i++) {
-      this.#reference.reset(); AMF3_REFERENCE_RESET();
+    console.log(packet.headers);
 
+    // Read messages
+    for (let i = 0, messageCount = this.#dynbuf.readUnsignedShort(); i < messageCount; i++) {
+      console.log("MESSAGE")
+      // Serializers and deserializers must reset reference indices to 0 each time a new message is processed
+      this.#reference.reset(); AMF3_REFERENCE_RESET();
+      // Read 'targetURI' and 'responseURI'
       const targetURI = this.#dynbuf.readUTF();
       const responseURI = this.#dynbuf.readUTF();
-      const length = this.#dynbuf.readUnsignedInt(); // Todo - Check?
-      // Todo - Strict array
+      // Read the expected amount of AMF bytes and store the position before reading AMF data
+      const length = this.#dynbuf.readUnsignedInt(); positionBeforeAMF = this.#dynbuf.position++; this.length = length; // Skip STRICT_ARRAY marker
+      // Deserialize data
+      const data = this.#deserializeStrictArray();
+      // Check if the message is malformed
+      if (this.#dynbuf.position !== (positionBeforeAMF + length)) {
+        console.log(`OOPS! Length: ${length}, Position: ${this.#dynbuf.position}, Idk: ${positionBeforeAMF + length}`);
+      }
 
-      //packet.addMessage(targetURI, responseURI, data);
+      packet.addMessage(targetURI, responseURI, ...data);
     }
 
     return packet;
@@ -181,8 +208,7 @@ export default class Deserializer {
    * @returns {any[]} The deserialized array
    */
   #deserializeArray() {
-    const value = [];
-    value.length = this.#dynbuf.readUnsignedInt();
+    const value = []; value.length = this.#dynbuf.readUnsignedInt();
 
     this.#reference.set(value);
 
@@ -214,6 +240,24 @@ export default class Deserializer {
   }
 
   /**
+   * Deserializes a strict array
+   * @private
+   * @returns {any[]} The deserialized strict array
+   */
+  #deserializeStrictArray() {
+    const value = []; value.length = this.#dynbuf.readUnsignedInt();
+
+    this.#reference.set(value); // Todo - Hmmm
+
+    for (let i = 0; i < value.length; i++) {
+      console.log('GOING TO DESERIALIZE', this.#dynbuf.stream.subarray(this.#dynbuf.position))
+      value[i] = this.deserialize();
+    }
+
+    return value;
+  }
+
+  /**
    * Deserializes a typed object
    * @private
    * @return {any} The deserialized typed object
@@ -237,9 +281,23 @@ export default class Deserializer {
    * @private
    */
   #deserializeAVMPlus() {
-    const AMF3Data = this.#dynbuf.stream.subarray(this.#dynbuf.position, this.#dynbuf.bytesAvailable + 1);
+    const AMF3Data = this.#dynbuf.stream.subarray(this.#dynbuf.position, this.#dynbuf.position + this.length - 1)
 
-    return this.#AMF_Deserialize(AMF3Data);
+    console.log('AMF3 DATA', AMF3Data);
+
+    this.#dynbuf.position += AMF3Data.length;
+
+    const a = this.#AMF_Deserialize(AMF3Data);
+    const avbl = this.AMF3_DYNBUF_BYTESAVAILABLE();
+
+    if (avbl !== 0) {
+      console.log('FOUND LEFTOVER DATA', avbl, this.#dynbuf.stream.subarray(this.#dynbuf.position - avbl))
+
+      this.length -= avbl;
+      this.#dynbuf.position -= avbl;
+    }
+
+    return a;
   }
 
   /**
