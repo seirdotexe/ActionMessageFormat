@@ -257,7 +257,6 @@ export default class Deserializer {
     this.#reference.set(value); // Todo - Hmmm
 
     for (let i = 0; i < value.length; i++) {
-      //console.log('GOING TO DESERIALIZE', this.#dynbuf.stream.subarray(this.#dynbuf.position));
       value[i] = this.deserialize();
     }
 
@@ -288,18 +287,18 @@ export default class Deserializer {
    * @private
    */
   #deserializeAVMPlus() {
-    const AMF3Data = this.#dynbuf.stream.subarray(this.#dynbuf.position, this.#dynbuf.position + Deserializer.#AMF_PACKET_DATA_LENGTH - 1); // Todo - Why -1 again?
+    // Parse the AMF3 binary data by using the current position in the buffer and the amount of AMF bytes we should read, coming from 'length' param
+    // When reading a header's data, and it is AVM+, it'll include a zero at the end of the buffer, but it doesn't seem to matter...
+    const AMF3Data = this.#dynbuf.stream.subarray(this.#dynbuf.position, this.#dynbuf.position + Deserializer.#AMF_PACKET_DATA_LENGTH);
 
-    console.log('AMF3 DATA', AMF3Data);
     this.#dynbuf.position += AMF3Data.length;
 
     const deserialized = this.#AMF_Deserialize(AMF3Data);
     const leftOverBytes = this.#AMF3_DYNBUF_BYTESAVAILABLE();
 
-    if (leftOverBytes !== 0) {
-      //console.log('FOUND LEFTOVER DATA', leftOverBytes, this.#dynbuf.stream.subarray(this.#dynbuf.position - leftOverBytes));
-      this.#dynbuf.position -= leftOverBytes;
-    }
+    // In an AMF packet, an added message can contain multiple entries of data
+    // If below is true, we're certainly dealing with another entry of data, so we must decrement the current position with the amount of AMF3 bytes available to continue deserializing
+    if (leftOverBytes !== 0) this.#dynbuf.position -= leftOverBytes;
 
     return deserialized;
   }

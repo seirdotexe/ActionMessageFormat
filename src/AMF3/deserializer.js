@@ -82,7 +82,7 @@ export default class Deserializer {
    */
   deserialize(buffer) {
     if (buffer) {
-      if (this.#dynbuf.length !== 0) this.#dynbuf.clear(); // Compatibility for AVM+ to clear and deserialize again
+      if (this.#dynbuf.length !== 0) this.#dynbuf.clear(); // Compatibility for AVM+ to clear and deserialize again (when a packet has AVM+ twice)
       this.#dynbuf.writeBytes(buffer); this.#dynbuf.position = 0; // Read and reset to the start so we can start reading AMF binary data
     }
 
