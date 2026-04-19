@@ -10,6 +10,14 @@ import Reference from './reference.js';
 /** @module AMF0/Deserializer */
 export default class Deserializer {
   /**
+   * A holder for the 'length' param for each AMF packet's header/message, and important for AVM+
+   * @static
+   * @private
+   * @type {number}
+   */
+  static #AMF_PACKET_DATA_LENGTH = 0;
+
+  /**
    * The AMF class alias holder
    * @private
    * @type {ClassAlias}
@@ -21,6 +29,12 @@ export default class Deserializer {
    * @type {Function}
    */
   #AMF_Deserialize;
+  /**
+   * The 'bytesAvailable' function holder
+   * @private
+   * @type {Function}
+   */
+  #AMF3_DYNBUF_BYTESAVAILABLE;
   /**
    * The DynBuffer instance containing AMF0 bytes for this instance
    * @private
@@ -40,11 +54,9 @@ export default class Deserializer {
    * @param {Function} AMF_Deserialize - The 'deserialize' function coming from the AMF entrypoint class
    */
   constructor(classAlias, AMF_Deserialize) {
-    this.length = 0;
-    this.AMF3_DYNBUF_BYTESAVAILABLE = null;
-
     this.#classAlias = classAlias;
     this.#AMF_Deserialize = AMF_Deserialize;
+    this.#AMF3_DYNBUF_BYTESAVAILABLE = null;
     this.#dynbuf = new DynBuffer();
     this.#reference = new Reference();
   }
@@ -87,7 +99,7 @@ export default class Deserializer {
    * @throws {RangeError} If the AMF binary data 'length' isn't the same amount as what we deserialized
    */
   deserializePacket(buffer, AMF3_REFERENCE_RESET, AMF3_DYNBUF_BYTESAVAILABLE) {
-    this.AMF3_DYNBUF_BYTESAVAILABLE = AMF3_DYNBUF_BYTESAVAILABLE;
+    if (!this.#AMF3_DYNBUF_BYTESAVAILABLE) this.#AMF3_DYNBUF_BYTESAVAILABLE = AMF3_DYNBUF_BYTESAVAILABLE
     this.#dynbuf.writeBytes(buffer); this.#dynbuf.position = 0; // Read and reset to the start so we can start reading AMF binary data
 
     let positionBeforeAMF = 0
@@ -96,42 +108,37 @@ export default class Deserializer {
 
     // Read headers
     for (let i = 0, headerCount = this.#dynbuf.readUnsignedShort(); i < headerCount; i++) {
-      console.log("HEADER")
       // Serializers and deserializers must reset reference indices to 0 each time a new header is processed
       this.#reference.reset(); AMF3_REFERENCE_RESET();
       // Read 'name' and 'mustUnderstand'
       const name = this.#dynbuf.readUTF();
       const mustUnderstand = this.#dynbuf.readBoolean();
       // Read the expected amount of AMF bytes and store the position before reading AMF data
-      const length = this.#dynbuf.readUnsignedInt(); positionBeforeAMF = this.#dynbuf.position; this.length = length;
-      // Deserialize data
+      const length = this.#dynbuf.readUnsignedInt(); positionBeforeAMF = this.#dynbuf.position; Deserializer.#AMF_PACKET_DATA_LENGTH = length;
+      // Deserialize AMF data
       const data = this.deserialize();
-
-      // Check if the header is malformed
+      // Check for length mismatch in the header payload
       if (this.#dynbuf.position !== (positionBeforeAMF + length)) {
-        console.log(`OOPS! Length: ${length}, Position: ${this.#dynbuf.position}, Idk: ${positionBeforeAMF + length}`);
+        throw new RangeError(`AMF header '${name}' length mismatch. Expected ${length}, got ${this.#dynbuf.position - positionBeforeAMF}`);
       }
 
       packet.addHeader(name, mustUnderstand, data);
     }
 
-    console.log(packet.headers);
-
     // Read messages
     for (let i = 0, messageCount = this.#dynbuf.readUnsignedShort(); i < messageCount; i++) {
-      console.log("MESSAGE")
       // Serializers and deserializers must reset reference indices to 0 each time a new message is processed
       this.#reference.reset(); AMF3_REFERENCE_RESET();
       // Read 'targetURI' and 'responseURI'
       const targetURI = this.#dynbuf.readUTF();
       const responseURI = this.#dynbuf.readUTF();
       // Read the expected amount of AMF bytes and store the position before reading AMF data
-      const length = this.#dynbuf.readUnsignedInt(); positionBeforeAMF = this.#dynbuf.position++; this.length = length; // Skip STRICT_ARRAY marker
-      // Deserialize data
+      const length = this.#dynbuf.readUnsignedInt(); positionBeforeAMF = this.#dynbuf.position++; Deserializer.#AMF_PACKET_DATA_LENGTH = length; // Skip STRICT_ARRAY marker (++ on pos)
+      // Deserialize AMF data
       const data = this.#deserializeStrictArray();
-      // Check if the message is malformed
+      // Check for length mismatch in the message payload
       if (this.#dynbuf.position !== (positionBeforeAMF + length)) {
-        console.log(`OOPS! Length: ${length}, Position: ${this.#dynbuf.position}, Idk: ${positionBeforeAMF + length}`);
+        throw new RangeError(`AMF message '${targetURI}' length mismatch. Expected ${length}, got ${this.#dynbuf.position - positionBeforeAMF}`);
       }
 
       packet.addMessage(targetURI, responseURI, ...data);
@@ -250,7 +257,7 @@ export default class Deserializer {
     this.#reference.set(value); // Todo - Hmmm
 
     for (let i = 0; i < value.length; i++) {
-      console.log('GOING TO DESERIALIZE', this.#dynbuf.stream.subarray(this.#dynbuf.position))
+      //console.log('GOING TO DESERIALIZE', this.#dynbuf.stream.subarray(this.#dynbuf.position));
       value[i] = this.deserialize();
     }
 
@@ -281,23 +288,20 @@ export default class Deserializer {
    * @private
    */
   #deserializeAVMPlus() {
-    const AMF3Data = this.#dynbuf.stream.subarray(this.#dynbuf.position, this.#dynbuf.position + this.length - 1)
+    const AMF3Data = this.#dynbuf.stream.subarray(this.#dynbuf.position, this.#dynbuf.position + Deserializer.#AMF_PACKET_DATA_LENGTH - 1); // Todo - Why -1 again?
 
     console.log('AMF3 DATA', AMF3Data);
-
     this.#dynbuf.position += AMF3Data.length;
 
-    const a = this.#AMF_Deserialize(AMF3Data);
-    const avbl = this.AMF3_DYNBUF_BYTESAVAILABLE();
+    const deserialized = this.#AMF_Deserialize(AMF3Data);
+    const leftOverBytes = this.#AMF3_DYNBUF_BYTESAVAILABLE();
 
-    if (avbl !== 0) {
-      console.log('FOUND LEFTOVER DATA', avbl, this.#dynbuf.stream.subarray(this.#dynbuf.position - avbl))
-
-      this.length -= avbl;
-      this.#dynbuf.position -= avbl;
+    if (leftOverBytes !== 0) {
+      //console.log('FOUND LEFTOVER DATA', leftOverBytes, this.#dynbuf.stream.subarray(this.#dynbuf.position - leftOverBytes));
+      this.#dynbuf.position -= leftOverBytes;
     }
 
-    return a;
+    return deserialized;
   }
 
   /**

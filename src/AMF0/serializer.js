@@ -14,8 +14,9 @@ import Reference from './reference.js';
 /** @module AMF0/Serializer */
 export default class Serializer {
   /**
-   * Initialize the list of types (along null and undefined) to serialize with AMF0 when facing possible AVM+ challenges
+   * A list of types (along null and undefined) to serialize with AMF0 when facing possible AVM+ challenges
    * @static
+   * @private
    * @type {string[]}
    */
   static #AVM_AMF0_ALLOWED = ['number', 'boolean', 'string'];
@@ -130,7 +131,7 @@ export default class Serializer {
       this.#dynbuf.writeBoolean(header.mustUnderstand);
       // Store the position before writing AMF data, and temporarily write -1 for length
       positionBeforeAMF = this.#dynbuf.position; this.#dynbuf.writeInt(-1);
-      // Serialize data
+      // Serialize AMF data
       this.#serializeAVMPlus(header.data);
       // Store the position after writing AMF data, then go back to before we serialized 'data'
       positionAfterAMF = this.#dynbuf.position; this.#dynbuf.position = positionBeforeAMF;
@@ -148,7 +149,7 @@ export default class Serializer {
       this.#dynbuf.writeUTF(message.responseURI);
       // Store the position before writing AMF data and temporarily write -1 for length
       positionBeforeAMF = this.#dynbuf.position; this.#dynbuf.writeInt(-1);
-      // Serialize data
+      // Serialize AMF data
       this.#serializeStrictArray(message.data);
       // Store the position after writing AMF data, then go back to before we serialized 'data'
       positionAfterAMF = this.#dynbuf.position; this.#dynbuf.position = positionBeforeAMF;
