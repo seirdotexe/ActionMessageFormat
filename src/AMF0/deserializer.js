@@ -254,7 +254,7 @@ export default class Deserializer {
   #deserializeStrictArray() {
     const value = []; value.length = this.#dynbuf.readUnsignedInt();
 
-    this.#reference.set(value); // Todo - Hmmm
+    this.#reference.set(value);
 
     for (let i = 0; i < value.length; i++) {
       value[i] = this.deserialize();

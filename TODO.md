@@ -16,7 +16,6 @@
 - Explicity test AMF3 trait reference
 - Testing AS3 NetConnection
   - Testing packet version behavior
-  - Reference for strict array
 
 ## AMF3
 

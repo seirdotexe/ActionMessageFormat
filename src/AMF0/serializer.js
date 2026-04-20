@@ -306,7 +306,6 @@ export default class Serializer {
    * @param {any[]} value - The strict array to serialize
    */
   #serializeStrictArray(value) {
-    // Todo - I'm curious if this is necessary. This type is only used for serializing message.data for packet, and after that, the references get reset anyway...
     const cache = this.#reference.has(value);
     if (cache.referenced) return this.#serializeReference(cache.index);
 
