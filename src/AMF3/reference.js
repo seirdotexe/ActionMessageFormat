@@ -63,9 +63,7 @@ export default class Reference {
   get(index, table) {
     const value = this[table][index];
 
-    if (table === 'traits') return JSON.parse(value);
-
-    return value;
+    return (table === 'traits') ? JSON.parse(value) : value;
   }
 
   /**

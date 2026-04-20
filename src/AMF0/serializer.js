@@ -121,6 +121,7 @@ export default class Serializer {
     let positionBeforeAMF = 0, positionAfterAMF = 0;
 
     this.#dynbuf.writeShort(packet.version);
+
     // Write headers
     this.#dynbuf.writeShort(packet.headerCount);
     for (const header of packet.headers) {

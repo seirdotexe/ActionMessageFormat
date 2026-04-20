@@ -119,7 +119,7 @@ export default class Deserializer {
       const data = this.deserialize();
       // Check for length mismatch in the header payload
       if (this.#dynbuf.position !== (positionBeforeAMF + length)) {
-        throw new RangeError(`AMF header '${name}' length mismatch. Expected ${length}, got ${this.#dynbuf.position - positionBeforeAMF}`);
+        throw new RangeError(`AMF header '${name}' length mismatch. Expected ${length}, but got ${this.#dynbuf.position - positionBeforeAMF} instead`);
       }
 
       packet.addHeader(name, mustUnderstand, data);
@@ -138,7 +138,7 @@ export default class Deserializer {
       const data = this.#deserializeStrictArray();
       // Check for length mismatch in the message payload
       if (this.#dynbuf.position !== (positionBeforeAMF + length)) {
-        throw new RangeError(`AMF message '${targetURI}' length mismatch. Expected ${length}, got ${this.#dynbuf.position - positionBeforeAMF}`);
+        throw new RangeError(`AMF message '${targetURI}' length mismatch. Expected ${length}, but got ${this.#dynbuf.position - positionBeforeAMF} instead`);
       }
 
       packet.addMessage(targetURI, responseURI, ...data);
@@ -290,11 +290,10 @@ export default class Deserializer {
     // Parse the AMF3 binary data by using the current position in the buffer and the amount of AMF bytes we should read, coming from 'length' param
     // When reading a header's data, and it is AVM+, it'll include a zero at the end of the buffer, but it doesn't seem to matter...
     const AMF3Data = this.#dynbuf.stream.subarray(this.#dynbuf.position, this.#dynbuf.position + Deserializer.#AMF_PACKET_DATA_LENGTH);
-
-    this.#dynbuf.position += AMF3Data.length;
-
     const deserialized = this.#AMF_Deserialize(AMF3Data);
     const leftOverBytes = this.#AMF3_DYNBUF_BYTESAVAILABLE();
+
+    this.#dynbuf.position += AMF3Data.length;
 
     // In an AMF packet, an added message can contain multiple entries of data
     // If below is true, we're certainly dealing with another entry of data, so we must decrement the current position with the amount of AMF3 bytes available to continue deserializing
