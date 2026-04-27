@@ -8,7 +8,6 @@
 
 ## AMF General
 
-- Restructure marker to value order in code `Serializer` and `Deserializer`
 - XML functionality
 
 ## AMF tests
