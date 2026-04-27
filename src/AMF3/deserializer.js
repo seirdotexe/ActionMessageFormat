@@ -91,12 +91,15 @@ export default class Deserializer {
     switch (marker) {
       case Markers.AMF3.NULL: return null;
       case Markers.AMF3.UNDEFINED: return undefined;
-      case Markers.AMF3.TRUE: case Markers.AMF3.FALSE: return this.#deserializeBoolean(marker);
       case Markers.AMF3.INTEGER: case Markers.AMF3.DOUBLE: return this.#deserializeInteger(marker);
+      case Markers.AMF3.TRUE: case Markers.AMF3.FALSE: return this.#deserializeBoolean(marker);
       case Markers.AMF3.STRING: return this.#deserializeString();
-      case Markers.AMF3.DATE: return this.#deserializeDate();
       case Markers.AMF3.OBJECT: return this.#deserializeObject();
       case Markers.AMF3.ARRAY: return this.#deserializeArray();
+      case Markers.AMF3.DATE: return this.#deserializeDate();
+      case Markers.AMF3.BYTE_ARRAY: return this.#deserializeByteArray();
+      case Markers.AMF3.VECTOR_INT: case Markers.AMF3.VECTOR_UINT: case Markers.AMF3.VECTOR_DOUBLE: case Markers.AMF3.VECTOR_OBJECT: return this.#deserializeTypedArray(marker);
+      case Markers.AMF3.DICTIONARY: return this.#deserializeDictionary();
       default: return this.#deserializeUnidentifiedObject(marker);
     }
   }
@@ -138,23 +141,6 @@ export default class Deserializer {
     const value = this.#dynbuf.readUTFBytes(length);
 
     if (length > 0) this.#reference.set(value, 'strings');
-
-    return value;
-  }
-
-
-  /**
-   * Deserializes a date
-   * @private
-   * @returns {Date} The deserialized date
-   */
-  #deserializeDate() {
-    const ref = this.#readUint29();
-    if ((ref & 1) === 0) return this.#reference.get(ref >> 1, 'objects');
-
-    const value = new Date(this.#dynbuf.readDouble());
-
-    this.#reference.set(value, 'objects');
 
     return value;
   }
@@ -230,6 +216,50 @@ export default class Deserializer {
    * @returns {any[]} The deserialized array
    */
   #deserializeArray() {
+    // Todo
+  }
+
+  /**
+   * Deserializes a date
+   * @private
+   * @returns {Date} The deserialized date
+   */
+  #deserializeDate() {
+    const ref = this.#readUint29();
+    if ((ref & 1) === 0) return this.#reference.get(ref >> 1, 'objects');
+
+    const value = new Date(this.#dynbuf.readDouble());
+
+    this.#reference.set(value, 'objects');
+
+    return value;
+  }
+
+  /**
+   * Deserializes a ByteArray (DynBuffer)
+   * @private
+   * @returns {DynBuffer} The deserialized ByteArray
+   */
+  #deserializeByteArray() {
+    // Todo
+  }
+
+  /**
+   * Deserializes a Vector (typed array)
+   * @private
+   * @param {0x0D|0x0E|0x0F|0x10} marker - The marker indicating the type of the Vector
+   * @returns {Int32Array|Uint32Array|Float64Array|any[]} The deserialized Vector
+   */
+  #deserializeTypedArray(marker) {
+    // Todo
+  }
+
+  /**
+   * Deserializes a Dictionary (Map or WeakMap)
+   * @private
+   * @returns {Map|WeakMap} The deserialized Dictionary
+   */
+  #deserializeDictionary() {
     // Todo
   }
 
