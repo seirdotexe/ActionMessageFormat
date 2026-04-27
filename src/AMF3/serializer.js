@@ -266,21 +266,31 @@ export default class Serializer {
     if (cacheObj.referenced) return this.#writeUint29(cacheObj.index << 1);
 
     this.#writeUint29((value.length << 1) | 1); // The AMF3 spec mentions only to encode the count of the dense portion of the array
-    // Todo - What about the length if the value has sparse entries?
 
-    const arrInfo = determineArray(value);
+    /*
+    Once again AVM is weird in handling arrays. Setting by index turns it into an associative array.
+
+    Option 1 - Associative:
+    var value:* = [];
+    value[1] = 1; // or even ["1"]
+    buffer: 09 01 03 31 04 01 01
+
+    Option 2 - Dense:
+    var value:* = [,1];
+    buffer: 09 05 01 00 04 01
+
+    There's no way for us to tell them apart. We're going with option 2 because that's how it's done in JS. The serialized output will differ but its functionality won't break!
+    */
 
     // AVM writes the associative part first
-    if (arrInfo.associative) {
-      const assocKeys = Object.keys(value).filter(key => isNaN(key));
-
-      assocKeys.forEach(key => {
+    for (const key in value) {
+      if (isNaN(key)) {
         this.#serializeString(key, false);
         this.serialize(value[key]);
-      });
-
-      this.#writeUint29(1); // Associative array empty string terminator
+      }
     }
+
+    this.#writeUint29(1); // Associative array empty string terminator
 
     for (let i = 0; i < value.length; i++) {
       this.serialize(value[i]);
