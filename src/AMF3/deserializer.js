@@ -241,7 +241,19 @@ export default class Deserializer {
    * @returns {DynBuffer} The deserialized ByteArray
    */
   #deserializeByteArray() {
-    // Todo
+    const ref = this.#readUint29();
+    if ((ref & 1) === 0) return this.#reference.get(ref >> 1, 'objects');
+
+    const length = (ref >> 1);
+    const value = new DynBuffer();
+
+    this.#reference.set(value, 'objects');
+
+    value.writeBytes(this.#dynbuf, this.#dynbuf.position, length); // Write 'x' in 'length' amount of bytes available to us into the new value
+    value.position = 0; // Reset the position of the new DynBuffer just like AVM+ does, for convenience
+    this.#dynbuf.position += length; // Increment our AMF DynBuffer with the amount of read data
+
+    return value;
   }
 
   /**
