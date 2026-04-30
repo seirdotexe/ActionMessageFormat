@@ -119,7 +119,7 @@ export default class Serializer {
         case 'Array': this.#serializeArray(value); break;
         case 'Date': this.#serializeDate(value); break;
         case 'DynBuffer': case 'Buffer': this.#serializeByteArray(value); break;
-        case 'Int32Array': case 'Uint32Array': case 'Float64Array': this.#serializeTypedArray(value, type); break;
+        case 'Int32Array': case 'Uint32Array': case 'Float64Array': this.#serializeVector(value, type); break;
         case 'Map': case 'WeakMap': this.#serializeDictionary(value); break;
         default: this.#serializeUnidentifiedObject(value);
       }
@@ -257,7 +257,7 @@ export default class Serializer {
    */
   #serializeArray(value) {
     if (Object.getOwnPropertyDescriptor(value, 'VectorObject')?.value) {
-      return this.#serializeTypedArray(value, 'ObjectArray');
+      return this.#serializeVector(value, 'ObjectArray');
     }
 
     this.#dynbuf.writeByte(Markers.AMF3.ARRAY);
@@ -334,7 +334,7 @@ export default class Serializer {
    * @param {'Int32Array'|'Uint32Array'|'Float64Array'|'ObjectArray'} type - The type of the Vector to serialize
    * @throws {TypeError} If a Vector Object was tried to serialize with multiple object types
    */
-  #serializeTypedArray(value, type) {
+  #serializeVector(value, type) {
     this.#dynbuf.writeByte(
       type === 'Int32Array' ? Markers.AMF3.VECTOR_INT :
         type === 'Uint32Array' ? Markers.AMF3.VECTOR_UINT :

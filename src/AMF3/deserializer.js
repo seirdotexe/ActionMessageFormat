@@ -98,7 +98,7 @@ export default class Deserializer {
       case Markers.AMF3.ARRAY: return this.#deserializeArray();
       case Markers.AMF3.DATE: return this.#deserializeDate();
       case Markers.AMF3.BYTE_ARRAY: return this.#deserializeByteArray();
-      case Markers.AMF3.VECTOR_INT: case Markers.AMF3.VECTOR_UINT: case Markers.AMF3.VECTOR_DOUBLE: case Markers.AMF3.VECTOR_OBJECT: return this.#deserializeTypedArray(marker);
+      case Markers.AMF3.VECTOR_INT: case Markers.AMF3.VECTOR_UINT: case Markers.AMF3.VECTOR_DOUBLE: case Markers.AMF3.VECTOR_OBJECT: return this.#deserializeVector(marker);
       case Markers.AMF3.DICTIONARY: return this.#deserializeDictionary();
       default: return this.#deserializeUnidentifiedObject(marker);
     }
@@ -263,8 +263,15 @@ export default class Deserializer {
    * @param {0x0D|0x0E|0x0F|0x10} marker - The marker indicating the type of the Vector
    * @returns {Int32Array|Uint32Array|Float64Array|any[]} The deserialized Vector
    */
-  #deserializeTypedArray(marker) {
+  #deserializeVector(marker) {
     // Todo
+    const ref = this.#readUint29();
+    if ((ref & 1) === 0) return this.#reference.get(ref >> 1, 'objects');
+
+    const isFixed = this.#dynbuf.readBoolean();
+    const length = (ref >> 1);
+
+    // this.#reference.set(value, 'objects');
   }
 
   /**
@@ -274,6 +281,13 @@ export default class Deserializer {
    */
   #deserializeDictionary() {
     // Todo
+    const ref = this.#readUint29();
+    if ((ref & 1) === 0) return this.#reference.get(ref >> 1, 'objects');
+
+    const isWeak = this.#dynbuf.readBoolean();
+    const length = (ref >> 1);
+
+    // this.#reference.set(value, 'objects');
   }
 
   /**
