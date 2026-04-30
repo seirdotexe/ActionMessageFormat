@@ -172,7 +172,7 @@ export default class Serializer {
    * Serializes a string
    * @private
    * @param {string} value - The string to serialize
-   * @param {boolean} [marker=true] - If the marker should be included or not
+   * @param {boolean} [marker=true] - Whether the string marker should be included
    */
   #serializeString(value, marker = true) {
     if (marker) this.#dynbuf.writeByte(Markers.AMF3.STRING);
@@ -265,10 +265,10 @@ export default class Serializer {
     const cacheObj = this.#reference.has(value, 'objects');
     if (cacheObj.referenced) return this.#writeUint29(cacheObj.index << 1);
 
-    this.#writeUint29((value.length << 1) | 1); // The AMF3 spec mentions only to encode the count of the dense portion of the array
+    this.#writeUint29((value.length << 1) | 1); // The AMF3 spec mentions only to encode the count of the dense (and for us in JS, also sparse) portion of the array
 
     /*
-    Once again AVM is weird in handling arrays. Setting by index turns it into an associative array.
+    Once again, AVM is weird in handling arrays. Setting by index turns it into an associative array.
 
     Option 1 - Associative:
     var value:* = [];
@@ -279,12 +279,12 @@ export default class Serializer {
     var value:* = [,1];
     buffer: 09 05 01 00 04 01
 
-    There's no way for us to tell them apart. We're going with option 2 because that's how it's done in JS. The serialized output will differ but its functionality won't break!
+    Since there's no way for us to tell them apart, we're going with option 2, because that's how it's done in JS. The serialized output will differ but its functionality won't break!
     */
 
     // AVM writes the associative part first
     for (const key in value) {
-      if (isNaN(key)) {
+      if (isNaN(key)) { // Skip dense values
         this.#serializeString(key, false);
         this.serialize(value[key]);
       }
@@ -347,7 +347,7 @@ export default class Serializer {
     this.#dynbuf.writeBoolean(!Object.isExtensible(value));
 
     if (type === 'ObjectArray') {
-      // We loosely check if the type of the first value in the array matches to the other values
+      // Loosely check if the type of the first value matches to the others
       const isTyped = value.every((item) => (typeof item === typeof value[0]));
       if (!isTyped) throw new TypeError('Tried to serialize a Vector Object with multiple object types');
 
@@ -402,7 +402,7 @@ export default class Serializer {
     const aliasName = this.#classAlias.getAliasByClass(constructor);
 
     if (aliasName || !isNativeObject(constructor)) {
-      this.#serializeObject(value); // Serialize typed and anonymous objects
+      this.#serializeObject(value); // Serialize typed and anonymous objects. Unlike AMF0, this all gets handled by a single 'serializeObject' method
     } else if (constructor.name === 'Set') {
       this.#serializeArray([...value]);
     } else {

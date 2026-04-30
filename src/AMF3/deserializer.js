@@ -82,7 +82,7 @@ export default class Deserializer {
    */
   deserialize(buffer) {
     if (buffer) {
-      if (this.#dynbuf.length !== 0) this.#dynbuf.clear(); // Compatibility for AVM+ to clear and deserialize again (when a packet has AVM+ twice)
+      if (this.#dynbuf.length !== 0) this.#dynbuf.clear(); // Compatibility for AVM+ to clear and deserialize again (example: when a packet has the AVM+ marker twice)
       this.#dynbuf.writeBytes(buffer); this.#dynbuf.position = 0; // Read and reset to the start so we can start reading AMF binary data
     }
 
@@ -156,11 +156,11 @@ export default class Deserializer {
     if ((ref & 1) === 0) return this.#reference.get(ref >> 1, 'objects');
 
     let value = {};
-    let traits = { className: null, externalizable: null, dynamic: null, keys: [], count: null }; // Initialize for jsdoc
+    let traits = { className: null, externalizable: null, dynamic: null, keys: [], count: null };
 
-    if ((ref & 3) === 1) { // Extract the lowest 2 bits, and if they equal to 1 (true), then this trait is referenceable, else we need to read it
-      traits = this.#reference.get(ref >> 2, 'traits');
-    } else {
+    if ((ref & 3) === 1) { // Extract the lowest 2 bits, and check if they're equal to 1 (true)
+      traits = this.#reference.get(ref >> 2, 'traits'); // Then this trait is referenceable
+    } else { // Else, we need to read the trait
       traits.className = this.#deserializeString();
       traits.externalizable = ((ref & 4) === 4); // Bit 2 (0x04)
       traits.dynamic = ((ref & 8) === 8); // Bit 3 (0x08)
@@ -173,13 +173,14 @@ export default class Deserializer {
       this.#reference.set(JSON.stringify(traits), 'traits');
     }
 
-    // Handle externalizable classes or registered classes
     const classObj = (traits.externalizable || traits.className !== '') ? this.#classAlias.getClassByAlias(traits.className) : undefined;
+
+    // Externalizable/registered classes
     if (traits.externalizable || traits.className !== '') {
       if (!classObj) throw new ReferenceError(`Tried to deserialize an unregistered class: '${traits.className}'.`);
 
       value = new classObj();
-      this.#reference.set(value, 'objects'); // Important reference set for registered classes!
+      this.#reference.set(value, 'objects'); // Important reference set for typed classes as we need to save a constructed copy
 
       if (traits.externalizable) {
         value.readExternal(this.#dynbuf);

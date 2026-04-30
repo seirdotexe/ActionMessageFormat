@@ -321,9 +321,10 @@ export default class Serializer {
   /**
    * Serializes an AVMPlus marker and its value in AMF3
    * @private
-   * @param {any} value - The value to serialize in AMF3, some sort of object
+   * @param {any} value - The value to serialize in AMF3
    */
   #serializeAVMPlus(value) {
+    // Certain types aren't allowed to be serialized in AMF3 format
     if ((value === null) || (value === undefined) || Serializer.#AVM_AMF0_ALLOWED.includes(typeof value)) {
       this.serialize(value);
     } else {
@@ -345,12 +346,12 @@ export default class Serializer {
       this.#serializeTypedObject(value, aliasName);
     } else if (!isNativeObject(constructor)) { // This is an unregistered typed object (AVM calls this an anonymous object), so we serialize it as an object
       this.#serializeObject(value);
-    } else { // An unknown base type from JS/Node was found
+    } else {
       if (constructor.name === 'Map') {
         this.#serializeObject(Object.fromEntries(value));
       } else if (constructor.name === 'Set') {
         this.#serializeArray([...value]);
-      } else {
+      } else { // An unknown base type from JS/Node was found (example: Regex)
         this.#serializeUnsupported(); //! We do the right thing and write the unsupported marker
       }
     }
