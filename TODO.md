@@ -5,6 +5,8 @@
 - Readme
   - Getter `dynamic()` on class
   - Vector object property 'VectorObject' using `Object.defineProperty` on array which value needs to be the class alias
+  - Set turns into array
+  - DynBuffer and Buffer
 
 ## AMF General
 
