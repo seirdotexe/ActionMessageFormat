@@ -308,7 +308,7 @@ export default class Serializer {
     const cache = this.#reference.has(value, 'objects');
     if (cache.referenced) return this.#writeUint29(cache.index << 1);
 
-    this.#writeUint29(1); // U29D-value reserved
+    this.#writeUint29(1); // U29D-value
     this.#dynbuf.writeDouble(value.getTime());
   }
 
