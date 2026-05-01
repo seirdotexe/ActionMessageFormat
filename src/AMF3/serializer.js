@@ -120,7 +120,7 @@ export default class Serializer {
         case 'Date': this.#serializeDate(value); break;
         case 'DynBuffer': case 'Buffer': this.#serializeByteArray(value); break;
         case 'Int32Array': case 'Uint32Array': case 'Float64Array': this.#serializeVector(value, type); break;
-        case 'Map': case 'WeakMap': this.#serializeDictionary(value); break;
+        case 'Map': this.#serializeDictionary(value); break;
         default: this.#serializeUnidentifiedObject(value);
       }
     }
@@ -366,9 +366,9 @@ export default class Serializer {
   }
 
   /**
-   * Serializes a Dictionary (Map or WeakMap)
+   * Serializes a Dictionary (Map)
    * @private
-   * @param {Map|WeakMap} value - The Dictionary to serialize
+   * @param {Map} value - The Dictionary to serialize
    */
   #serializeDictionary(value) {
     this.#dynbuf.writeByte(Markers.AMF3.DICTIONARY);
@@ -376,18 +376,14 @@ export default class Serializer {
     const cache = this.#reference.has(value, 'objects');
     if (cache.referenced) return this.#writeUint29(cache.index << 1);
 
-    const isWeak = (value instanceof WeakMap);
+    const isWeak = false; // Todo
 
     this.#writeUint29((value.size << 1) | 1);
     this.#dynbuf.writeBoolean(isWeak);
 
-    if (isWeak) {
-      // Todo
-    } else {
-      for (const [key, keyVal] of value) {
-        this.serialize(key);
-        this.serialize(keyVal);
-      }
+    for (const [key, keyVal] of value) {
+      this.serialize(key);
+      this.serialize(keyVal);
     }
   }
 

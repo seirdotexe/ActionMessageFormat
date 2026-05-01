@@ -275,19 +275,25 @@ export default class Deserializer {
   }
 
   /**
-   * Deserializes a Dictionary (Map or WeakMap)
+   * Deserializes a Dictionary (Map)
    * @private
-   * @returns {Map|WeakMap} The deserialized Dictionary
+   * @returns {Map} The deserialized Dictionary
    */
   #deserializeDictionary() {
-    // Todo
     const ref = this.#readUint29();
     if ((ref & 1) === 0) return this.#reference.get(ref >> 1, 'objects');
 
-    const isWeak = this.#dynbuf.readBoolean();
+    const isWeak = this.#dynbuf.readBoolean(); // Todo
     const length = (ref >> 1);
+    const value = new Map();
 
-    // this.#reference.set(value, 'objects');
+    this.#reference.set(value, 'objects');
+
+    for (let i = 0; i < length; i++) {
+      value.set(this.deserialize(), this.deserialize());
+    }
+
+    return value;
   }
 
   /**
