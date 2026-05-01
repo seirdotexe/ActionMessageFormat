@@ -1,5 +1,5 @@
 /**
- * @module AMF/Static/Markers
+ * @module AMF/Markers
  *
  * @typedef {object} AMF0Markers
  * @property {number} NUMBER 0x00

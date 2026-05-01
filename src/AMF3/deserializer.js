@@ -6,7 +6,7 @@ import Reference from './reference.js';
  * @typedef {import('../AMF/alias.js').default} ClassAlias
  */
 
-/** @module AMF0/Deserializer */
+/** @module AMF3/Deserializer */
 export default class Deserializer {
   /**
    * The AMF class alias holder
