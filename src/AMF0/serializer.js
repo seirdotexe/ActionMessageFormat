@@ -136,7 +136,7 @@ export default class Serializer {
       this.#serializeAVMPlus(header.data);
       // Store the position after writing AMF data, then go back to before we serialized 'data'
       positionAfterAMF = this.#dynbuf.position; this.#dynbuf.position = positionBeforeAMF;
-      // Write the amount of bytes needed that were needed to serialize the AMF data, then reset back for closure
+      // Write the amount of bytes that were needed to serialize the AMF data, then reset back for closure
       this.#dynbuf.writeInt(positionAfterAMF - positionBeforeAMF - 4); this.#dynbuf.position = positionAfterAMF;
     }
 
