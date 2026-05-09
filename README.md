@@ -100,6 +100,14 @@ Object.defineProperty(value, 'VectorObject', { value: 'src.Character' });
 const serialized = AMF.serialize(value); // 10 03 00 1b 73 72 63 2e 43 68 61 72 61 63 74 65 72 0a 13 00 11 75 73 65 72 6e 61 6d 65 06 09 53 65 69 72
 const deserialized = AMF.deserialize(serialized); // [ Character { username: 'Seir' } ]
 ```
+Regular built-in types also work.
+```js
+const value = ['A', 'B', 'C'];
+Object.defineProperty(value, 'VectorObject', { value: '' }); // Set to empty string is mandatory!
+
+const serialized = AMF.serialize(value); // 10 07 00 01 06 03 41 06 03 42 06 03 43
+const deserialized = AMF.deserialize(serialized); // [ 'A', 'B', 'C' ]
+```
 
 **AVM+ extension marker**
 ```js

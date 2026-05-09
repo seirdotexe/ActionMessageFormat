@@ -264,14 +264,33 @@ export default class Deserializer {
    * @returns {Int32Array|Uint32Array|Float64Array|any[]} The deserialized Vector
    */
   #deserializeVector(marker) {
-    // Todo
     const ref = this.#readUint29();
     if ((ref & 1) === 0) return this.#reference.get(ref >> 1, 'objects');
 
     const isFixed = this.#dynbuf.readBoolean();
     const length = (ref >> 1);
+    const value = marker === Markers.AMF3.VECTOR_INT ? new Int32Array(length) :
+      marker === Markers.AMF3.VECTOR_UINT ? new Uint32Array(length) :
+        marker === Markers.AMF3.VECTOR_DOUBLE ? new Float64Array(length) : [];
 
-    // this.#reference.set(value, 'objects');
+    if (marker === Markers.AMF3.VECTOR_OBJECT) {
+      const aliasName = this.#deserializeString();
+      const classObj = this.#classAlias.getClassByAlias(aliasName);
+
+      Object.defineProperty(value, 'VectorObject', { value: aliasName });
+    }
+
+    for (let i = 0; i < length; i++) {
+      value[i] = marker === Markers.AMF3.VECTOR_INT ? this.#dynbuf.readInt() :
+        marker === Markers.AMF3.VECTOR_UINT ? this.#dynbuf.readUnsignedInt() :
+          marker === Markers.AMF3.VECTOR_DOUBLE ? this.#dynbuf.readDouble() : this.deserialize();
+    }
+
+    if (isFixed) Object.preventExtensions(value);
+
+    this.#reference.set(value, 'objects');
+
+    return value;
   }
 
   /**

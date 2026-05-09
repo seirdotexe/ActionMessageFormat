@@ -256,7 +256,7 @@ export default class Serializer {
    * @param {any[]} value - The array to serialize
    */
   #serializeArray(value) {
-    if (Object.getOwnPropertyDescriptor(value, 'VectorObject')?.value) {
+    if (Object.getOwnPropertyDescriptor(value, 'VectorObject')) {
       return this.#serializeVector(value, 'ObjectArray');
     }
 
