@@ -2,6 +2,10 @@
 
 Adobe's binary format, Action Message Format (AMF0 and AMF3), implemented in modern JavaScript.
 
+AMF was used in products written with Actionscript from the Adobe Flash era for lots of use cases like: game networking (ie Moviestarplanet, Panfu, Fishao), binary serialization, and endpoint communication (ie AMF gateways with remoting and packets). One of its key features is that it can preserve entire class structures which both the client & server must understand. This was very useful back in the day. It also tries to compress the byte stream by implementing a reference system. Objects were cached, and if they were seen 'referenced' before, it would write the index to that cache entry. Nowadays, AMF is obsolute; Protobuf does almost everything, but more efficient, and more modern. AMF was also used in-house by Adobe for numerous formats, like in FLV 'Flash Video', LSO 'Local shared object' and RTMP 'Real Time Messaging Protocol'.
+
+The goal of this project is to preserve the protocol which was once so crucial yet unknown to the user.
+
 # Examples
 
 **Dynamic Property Writer**
