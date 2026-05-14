@@ -11,15 +11,16 @@ The goal of this project is to preserve the protocol which was once so crucial y
 **Dynamic Property Writer**
 ```js
 const myPropWriter = (obj) => {
-  if (obj.id) obj.id *= 100;
-  if (obj.username) obj.username += ` #${obj.id}`
+  if (obj.id && obj.username) {
+    obj.username += ` ${obj.id}`;
+  }
 }
 
 AMF.registerDynamicPropertyWriter(myPropWriter, 0);
 
 const value = { username: 'User', id: 5 };
-const serialized = AMF.serialize(value, 0); // 03 00 08 75 73 65 72 6e 61 6d 65 02 00 09 55 73 65 72 20 23 35 30 30 00 02 69 64 00 40 7f 40 00 00 00 00 00 00 00 09
-const deserialized = AMF.deserialize(serialized, 0); // { username: 'User #500', id: 500 }
+const serialized = AMF.serialize(value, 0); // 03 00 08 75 73 65 72 6e 61 6d 65 02 00 06 55 73 65 72 20 35 00 02 69 64 00 40 14 00 00 00 00 00 00 00 00 09
+const deserialized = AMF.deserialize(serialized, 0); // { username: 'User 5', id: 5 }
 ```
 
 **Typed classes**
