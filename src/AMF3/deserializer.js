@@ -217,7 +217,23 @@ export default class Deserializer {
    * @returns {any[]} The deserialized array
    */
   #deserializeArray() {
-    // Todo
+    const ref = this.#readUint29();
+    if ((ref & 1) === 0) return this.#reference.get(ref >> 1, 'objects');
+
+    const length = (ref >> 1);
+    const value = []; value.length = length;
+
+    this.#reference.set(value, 'objects');
+
+    for (let key = this.#deserializeString(); key !== ''; key = this.#deserializeString()) {
+      value[key] = this.deserialize();
+    }
+
+    for (let i = 0; i < length; i++) {
+      value[i] = this.deserialize();
+    }
+
+    return value;
   }
 
   /**
