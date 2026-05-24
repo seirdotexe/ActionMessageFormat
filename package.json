@@ -1,6 +1,5 @@
 {
   "name": "@seirdotexe/actionmessageformat",
-  "private": true,
   "version": "1.0.0",
   "description": "Adobe's binary format, Action Message Format (AMF0 and AMF3), implemented in modern JavaScript.",
   "type": "module",
