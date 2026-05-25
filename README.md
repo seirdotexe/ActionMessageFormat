@@ -19,6 +19,8 @@ Requires Node V24 and up.
 
 # Examples
 
+The entire class is well documented and is accessible [here](https://seirdotexe.github.io/amf-api/).
+
 ```js
 import AMF, { Packet } from '@seirdotexe/actionmessageformat';
 

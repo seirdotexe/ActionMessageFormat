@@ -1,0 +1,16 @@
+{
+  "plugins": [
+    "node_modules/jsdoc-tsimport-plugin/index.js"
+  ],
+  "source": {
+    "include": [
+      "./src"
+    ],
+    "includePattern": ".+\\.js$",
+    "recurse": true
+  },
+  "opts": {
+    "destination": "./amf-api",
+    "recurse": true
+  }
+}

@@ -6,7 +6,8 @@
   "types": "./types/index.d.ts",
   "main": "./index.js",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "jsdoc": "jsdoc -c jsdoc.json"
   },
   "engines": {
     "node": "^24"
@@ -38,6 +39,8 @@
   "devDependencies": {
     "@types/node": "25.8.0",
     "express": "5.2.1",
+    "jsdoc": "4.0.5",
+    "jsdoc-tsimport-plugin": "1.0.5",
     "typescript": "6.0.3"
   }
 }
