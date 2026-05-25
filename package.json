@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Adobe's binary format, Action Message Format (AMF0 and AMF3), implemented in modern JavaScript.",
   "type": "module",
+  "types": "./types/index.d.ts",
   "main": "./index.js",
   "scripts": {
     "test": "node --test"
@@ -35,6 +36,8 @@
   "author": "seirdotexe",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "express": "5.2.1"
+    "@types/node": "25.8.0",
+    "express": "5.2.1",
+    "typescript": "6.0.3"
   }
 }
