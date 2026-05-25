@@ -19,8 +19,6 @@ Requires Node V24 and up.
 
 # Examples
 
-The entire class is well documented and is accessible [here](https://seirdotexe.github.io/amf-api/).
-
 ```js
 import AMF, { Packet } from '@seirdotexe/actionmessageformat';
 
@@ -57,6 +55,7 @@ class Character {
 }
 
 AMF.classAlias.registerClassAlias('src.Character', Character);
+// Also: unregisterClassAlias, getClassByAlias and getAliasByClass
 
 const value = new Character('Seir', 100);
 const serialized = AMF.serialize(value, 0); // 10 00 0d 73 72 63 2e 43 68 61 72 61 63 74 65 72 00 08 75 73 65 72 6e 61 6d 65 02 00 04 53 65 69 72 00 05 6c 65 76 65 6c 00 40 59 00 00 00 00 00 00 00 00 09
