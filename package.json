@@ -37,7 +37,7 @@
   "author": "seirdotexe",
   "license": "BSD-3-Clause",
   "devDependencies": {
-    "@types/node": "25.8.0",
+    "@types/node": "25.9.3",
     "express": "5.2.1",
     "jsdoc": "4.0.5",
     "jsdoc-tsimport-plugin": "1.0.5",
