@@ -376,10 +376,8 @@ export default class Serializer {
     const cache = this.#reference.has(value, 'objects');
     if (cache.referenced) return this.#writeUint29(cache.index << 1);
 
-    const isWeak = false; // Todo
-
     this.#writeUint29((value.size << 1) | 1);
-    this.#dynbuf.writeBoolean(isWeak);
+    this.#dynbuf.writeBoolean(false); //! Weak keys are not supported
 
     for (const [key, keyVal] of value) {
       this.serialize(key);

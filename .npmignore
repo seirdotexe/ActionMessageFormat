@@ -6,6 +6,3 @@ spec/
 amf-api/
 playground.js
 playground2.js
-jsconfig.json
-tsconfig.json
-jsdoc.json

@@ -11,5 +11,4 @@
 
 ## AMF3
 
-- What about WeakMap? And Dictionary weak-keys?
-- Examine Decorators for Externalizable, is it viable?
+- Tbd

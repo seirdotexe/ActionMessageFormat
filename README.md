@@ -9,13 +9,32 @@ Adobe's binary format, Action Message Format (AMF0 and AMF3), implemented in mod
 
 AMF was used in products written with Actionscript from the Adobe Flash era for lots of use cases like: game networking (ie Moviestarplanet, Panfu, Fishao), binary serialization, and endpoint communication (ie AMF gateways with remoting and packets). One of its key features is that it can preserve entire class structures which both the client & server must understand. This was very useful back in the day. It also tries to compress the byte stream by implementing a reference system. Objects were cached, and if they were seen 'referenced' before, it would write the index to that cache entry. Nowadays, AMF is obsolute; Protobuf does almost everything, but more efficient, and more modern. AMF was also used in-house by Adobe for numerous formats, like in FLV 'Flash Video', LSO 'Local shared object' and RTMP 'Real Time Messaging Protocol'.
 
-The goal of this project is to preserve the protocol which was once so crucial yet unknown to the user.
+The goal of this project is to preserve the protocol (excluding RTMP, but including packet remoting) which was once so crucial yet unknown to the user.
 
 # Requirements and installation
 
 Requires Node V24 and up.
 
 > npm install @seirdotexe/actionmessageformat
+
+# API
+
+For reasoning behind certain modifications, please check out the documentation [here](https://github.com/seirdotexe/ActionMessageFormat/blob/main/DOC.md).
+
+```
+// AMF
+serialize(value:any, version:0|3):Buffer
+deserialize(buffer:Buffer, version:0|3):any
+serializePacket(packet:Packet):Buffer
+deserializePacket(buffer:Buffer):Packet
+registerDynamicPropertyWriter(method:Function, version:0|3)
+
+// Class alias
+getClassByAlias(aliasName:string):object
+getAliasByClass(classObj:object):string
+registerClassAlias(aliasName:string, classObj:object):void
+unregisterClassAlias(aliasName:string):void
+```
 
 # Examples
 
@@ -89,7 +108,7 @@ deserialized.age = 32; // Throws an error
 
 **Externalizable**
 
-Tough to implement into an untyped language, but it works. Still looking for a way to improve this, perhaps with decorators, an experimental feature.
+Tough to implement into an untyped language, but it works. Still looking for a way to improve this.
 ```js
 class Car {
   constructor(brand, model) {

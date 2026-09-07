@@ -318,7 +318,7 @@ export default class Deserializer {
     const ref = this.#readUint29();
     if ((ref & 1) === 0) return this.#reference.get(ref >> 1, 'objects');
 
-    const isWeak = this.#dynbuf.readBoolean(); // Todo
+    const isWeak = this.#dynbuf.readBoolean(); //! Weak keys are not supported
     const length = (ref >> 1);
     const value = new Map();
 
