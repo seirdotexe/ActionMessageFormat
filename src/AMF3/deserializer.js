@@ -291,7 +291,6 @@ export default class Deserializer {
 
     if (marker === Markers.AMF3.VECTOR_OBJECT) {
       const aliasName = this.#deserializeString();
-      const classObj = this.#classAlias.getClassByAlias(aliasName);
 
       Object.defineProperty(value, 'VectorObject', { value: aliasName });
     }
