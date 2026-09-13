@@ -1,15 +1,14 @@
 # Action Message Format
 
 [![NPM Version](https://img.shields.io/npm/v/@seirdotexe/actionmessageformat)](https://www.npmjs.com/package/@seirdotexe/actionmessageformat)
-[![GitHub stars](https://img.shields.io/github/stars/seirdotexe/actionmessageformat)](https://github.com/seirdotexe/actionmessageformat)
 
-⚠️ This package is not fully tested as of yet, bugs may appear. Please see the todo's.
+⚠️ This package is not fully tested as of yet, bugs may appear. Please see the todo's [here](https://github.com/seirdotexe/ActionMessageFormat/blob/main/TODO.md).
 
 Adobe's binary format, Action Message Format (AMF0 and AMF3), implemented in modern JavaScript.
 
-AMF was used in products written with Actionscript from the Adobe Flash era for lots of use cases like: game networking (ie Moviestarplanet, Panfu, Fishao), binary serialization, and endpoint communication (ie AMF gateways with remoting and packets). One of its key features is that it can preserve entire class structures which both the client & server must understand. This was very useful back in the day. It also tries to compress the byte stream by implementing a reference system. Objects were cached, and if they were seen 'referenced' before, it would write the index to that cache entry. Nowadays, AMF is obsolute; Protobuf does almost everything, but more efficient, and more modern. AMF was also used in-house by Adobe for numerous formats, like in FLV 'Flash Video', LSO 'Local shared object' and RTMP 'Real Time Messaging Protocol'.
+AMF was used in products written with Actionscript from the Adobe Flash era for lots of use cases like: game networking (ie Moviestarplanet, Panfu, Fishao), binary serialization, and endpoint communication (ie AMF gateways with remoting and packets). One of its key features is that it can preserve entire class structures which both the client & server must understand. It also tries to compress the byte stream by implementing a reference system. Objects were cached, and if they were seen 'referenced' before, it would write the index to that cache entry. Nowadays, AMF is obsolute; Protobuf does almost everything, but more efficient, and more modern. AMF was also used in-house by Adobe for numerous formats, like in FLV 'Flash Video', LSO 'Local shared object' and RTMP 'Real Time Messaging Protocol'.
 
-The goal of this project is to preserve the protocol (excluding RTMP, but including packet remoting) which was once so crucial yet unknown to the user.
+The goal of this project is to preserve the AMF binary format which was once so crucial yet unknown to the user.
 
 # Requirements and installation
 
@@ -19,7 +18,7 @@ Requires Node V24 and up.
 
 # API
 
-For reasoning behind certain modifications, please check out the documentation [here](https://github.com/seirdotexe/ActionMessageFormat/blob/main/DOC.md).
+🎯 For reasoning behind certain modifications, limitations, and extra explanations, please check out the documentation [here](https://github.com/seirdotexe/ActionMessageFormat/blob/main/DOC.md).
 
 ```
 // AMF
@@ -76,7 +75,6 @@ class Character {
 }
 
 AMF.classAlias.registerClassAlias('src.Character', Character);
-// Also: unregisterClassAlias, getClassByAlias and getAliasByClass
 
 const value = new Character('Seir', 100);
 const serialized = AMF.serialize(value, 0); // 10 00 0d 73 72 63 2e 43 68 61 72 61 63 74 65 72 00 08 75 73 65 72 6e 61 6d 65 02 00 04 53 65 69 72 00 05 6c 65 76 65 6c 00 40 59 00 00 00 00 00 00 00 00 09
@@ -192,20 +190,6 @@ Theoretically used only for remoting, but also works out of the box.
 const serialized = Buffer.concat([new Uint8Array([0x11]), AMF.serialize({ id: 1 }, 3)]); // 11 (0a 0b 01 05 69 64 04 01 01)
 const deserialized = AMF.deserialize(serialized, 0); // { id: 1 }
 ```
-
-# Modifications and limitations
-
-**Limitations**
-- No XML support (as of now)
-- No `weak-keys` support for Dictionary (as of now)
-- No planned Flex remoting support
-- No planned AMF gateway remoting support
-
-**Modifications**
-- `Set()` turns into a regular array for AMF0/AMF3. `Map()` turns into a regular object for AMF0, and in AMF3 it's used as `Dictionary`.
-- Full drop-in support for ByteArray to my package [dynbuffer](https://github.com/seirdotexe/dynbuffer)
-- Getter `dynamic` to specificy if a class is dynamic or not
-- Object property `VectorObject` to specificy a Vector Object
 
 # License
 

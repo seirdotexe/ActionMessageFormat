@@ -1,6 +1,6 @@
 import DynBuffer from '@seirdotexe/dynbuffer';
 import Markers from '../AMF/markers.js';
-import { determineArray, isNativeObject } from '../AMF/utils.js';
+import { isNativeObject } from '../AMF/utils.js';
 import Reference from './reference.js';
 
 /**
