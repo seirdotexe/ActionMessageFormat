@@ -77,7 +77,7 @@ export default class Reference {
 
   /**
    * Checks whether the given object is referenced (or, 'seen'). If not, then it's added. For every call, a 'cache' object is returned
-   * @param {object} - The object to check if it's referenced or not
+   * @param {object|string} value - The value to check if it's referenced or not
    * @param {'strings'|'objects'|'traits'} table - The reference table type
    * @returns {{index: number, referenced: boolean}} The cache object; its index and if it's referenced or not
    */
