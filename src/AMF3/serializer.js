@@ -221,7 +221,7 @@ export default class Serializer {
       throw new ReferenceError(`Tried to serialize an unregistered externalizable class: '${proto.constructor.name}'.`);
     }
 
-    const cacheTraits = this.#reference.has(traits, 'traits');
+    const cacheTraits = this.#reference.has(JSON.stringify(traits), 'traits');
     if (cacheTraits.referenced) {
       this.#writeUint29((cacheTraits.index << 2) | 1); // U29O-traits-ref
     } else {
