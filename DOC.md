@@ -70,3 +70,5 @@ It depends on `Object.defineProperty(value, 'VectorObject', { value: '' });` whe
 Full drop-in support for ByteArray to my package [dynbuffer](https://github.com/seirdotexe/dynbuffer). It also supports `Buffer`.
 
 # Trait reference
+
+A Trait is an object based on certain rules on how to perceive an object. It gathers all the crucial information we need to determine what kind of object we're dealing with. Because this is an object we build ourselves, it isn't referenced to anything. In order for us to know if a trait is equal to another trait, we simply JSON.stringify them.
