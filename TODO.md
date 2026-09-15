@@ -16,4 +16,4 @@
 
 ## AMF3
 
-- Traits should be JSON.stringify in reference class
+- None
