@@ -1,57 +1,29 @@
 /** @module AMF3/Reference */
 export default class Reference {
   /**
-   * Initialize the array to hold referenced 'seen' strings
+   * Initialize the reference tables
    * @private
-   * @type {string[]}
+   * @type {{
+   * strings: string[],
+   * objects: object[],
+   * traits: string[]
+   * }}
    */
-  #strings;
-  /**
-   * Initialize the array to hold referenced 'seen' objects
-   * @private
-   * @type {object[]}
-   */
-  #objects;
-  /**
-   * Initialize the array to hold referenced 'seen' traits. These values are hashed to improve performance
-   * @private
-   * @type {string[]}
-   */
-  #traits;
+  #tables;
 
   /**
    * Creates a new AMF3 Reference holder
    */
   constructor() {
-    this.#strings = [];
-    this.#objects = [];
-    this.#traits = [];
+    this.#tables = { strings: [], objects: [], traits: [] };
     this.reset = this.reset.bind(this); // Bind so 'serializePacket' and 'deserializePacket' can pass from within AMF entrypoint
   }
-
-  /**
-   * Returns the referenced 'seen' strings
-   * @returns {string[]}
-   */
-  get strings() { return this.#strings; }
-  /**
-   * Returns the referenced 'seen' objects
-   * @returns {object[]}
-   */
-  get objects() { return this.#objects; }
-  /**
-   * Returns the referenced 'seen' traits
-   * @returns {string[]}
-   */
-  get traits() { return this.#traits; }
 
   /**
    * Resets the references
    */
   reset() {
-    this.#strings = [];
-    this.#objects = [];
-    this.#traits = [];
+    this.#tables = { strings: [], objects: [], traits: [] };
   }
 
   /**
@@ -61,18 +33,18 @@ export default class Reference {
    * @returns {object|string} The referenced value
    */
   get(index, table) {
-    const value = this[table][index];
+    const value = this.#tables[table][index];
 
     return (table === 'traits') ? JSON.parse(value) : value;
   }
 
   /**
-   * Sets an object to hold as a reference
+   * Sets a value to hold as a reference
    * @param {object|string} value - The value to reference and mark as 'seen'
    * @param {'strings'|'objects'|'traits'} table - The reference table type
    */
   set(value, table) {
-    this[table][this[table].length] = value;
+    this.#tables[table].push(value);
   }
 
   /**
@@ -82,7 +54,7 @@ export default class Reference {
    * @returns {{index: number, referenced: boolean}} The cache object; its index and if it's referenced or not
    */
   has(value, table) {
-    const index = this[table].indexOf(value);
+    const index = this.#tables[table].indexOf(value);
     const cache = { index, referenced: (index !== -1) };
 
     if (!cache.referenced) this.set(value, table);

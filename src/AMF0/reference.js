@@ -35,12 +35,12 @@ export default class Reference {
    * @param {object} value - The object to reference and mark as 'seen'
    */
   set(value) {
-    this.#objects[this.#objects.length] = value;
+    this.#objects.push(value);
   }
 
   /**
    * Checks whether the given object is referenced (or, 'seen'). If not, then it's added. For every call, a 'cache' object is returned
-   * @param {object} - The object to check if it's referenced or not
+   * @param {object} value - The object to check if it's referenced or not
    * @returns {{index: number, referenced: boolean}} The cache object; its index and if it's referenced or not
    */
   has(value) {
